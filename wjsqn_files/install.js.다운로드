@@ -1,0 +1,201 @@
+/** 스크립트 위치 사이트별 설정 **/
+/** var SEETOC_VISITOR_SCRIPT_PATH = 'http://edu.wiselog.com:8000/wiselog/logging/'; **/
+var SEETOC_VISITOR_SCRIPT_PATH = '//weblog.eseoul.go.kr/wlo/js/';
+
+/** 로그인 시점에 사용자 ID 쿠키발행 **/
+var _se_uid_cookie = "MEM001_PK";
+var _se_c_field2="ds_search";
+
+/** 공통 **/
+/** WLO 설정 **/
+var WLO_LOGGING_URL = "weblog.eseoul.go.kr/wlo/Logging";
+var WLO_LOGGING_USER_URL = "weblog.eseoul.go.kr/wlo/UserLogging";
+
+var _se_sid = location.hostname;					/* 로그디렉토리 */
+
+if(typeof(loggingCustomSid) != "undefined") {
+	_se_sid = loggingCustomSid;
+}
+
+var broswerInfo = navigator.userAgent;
+
+if(broswerInfo.indexOf("eSeoulApp")>-1){
+    _se_sid = "app." + _se_sid;
+}
+
+var _se_ls = "http://" + WLO_LOGGING_URL;		/* logging server */
+var _se_uls = "http://" + WLO_LOGGING_USER_URL;	/* user logging server */
+var _se_uid = "";								/* uid */
+var _se_first_pcid = false;
+var _se_click_logging_max = 30;
+var _se_click_logging_num = 0;
+var _se_click_images = new Object();
+var _se_use_subcookie = false;
+
+var _se_ptype_param="_wl_ptype";
+var _se_src_param="_wl_src";
+var _se_keyword_param="_wl_keyword";
+var _se_mid_param="_wl_mid";
+var _se_convday_param="_wl_convday";
+var _se_acqmoney_param="_wl_convvalue"
+
+var	_se_src_cookie="NCHANNELSRC";
+var _se_keyword_cookie="NCHANNELKWD";
+var _se_mid_cookie="NCHANNELMID";
+var _se_date_cookie="NCHANNELDATE"
+
+var _se_max_conv_day = 30;
+
+var _se_cookie_convtype="NCONVTYPE";
+var _se_cookie_convkwd="NCONVKWD";
+
+var _se_use_subcookie = false;	/* use sub cookie */
+var _se_use_channel = false;		/* use inflow channel */
+var _se_use_cpc = false;		/* use CPC */
+
+var _se_bank_uid = "";		// bank uid (non cookie uid)
+var _se_bank_uid_name = "WLUID";	// bank uid key name (for log's cookie name)
+
+var _se_use_img_timeout = false;
+var _se_img_timeout_millis = 3000;
+
+/** logging protocol setting **/
+if ( document.location.protocol == "https:" ) {
+	_se_ls = "https://" + WLO_LOGGING_URL;
+	_se_uls = "https://" + WLO_LOGGING_USER_URL;
+}
+
+/** DataLive 설정 **/
+var SEETOC_MONITOR_SERVER_URL = 'http://weblog2.eseoul.go.kr';
+var SEETOC_MONITOR_SERVER_SECURE_URL = 'https://weblog2.eseoul.go.kr';
+var SEETOC_SERVICE_ID = _se_sid;
+
+
+(function() {
+
+	var obj_date = new Date();
+	var strDate = "";
+
+	strDate += obj_date.getFullYear();
+	strDate += obj_date.getMonth();
+	strDate += obj_date.getDate();
+
+	var wlos = document.createElement("script");
+	wlos.type = "text/javascript";
+	wlos.src = SEETOC_VISITOR_SCRIPT_PATH + "wl6.js?" + strDate;
+	wlos.async = true;
+	wlos.charset = 'utf-8';
+	var firstScript = document.getElementsByTagName("script")[0];
+	firstScript.parentNode.insertBefore(wlos, firstScript);
+
+	var isWloScriptLoad = false;
+	
+	wlos.onreadystatechange = wlos.onload = function() {
+		try {
+			if (isWloScriptLoad) {
+				return;
+			}
+			
+			se_logging();
+		} catch (e) {
+			isWloScriptLoad = false
+		}
+	}
+
+	var cts = document.createElement("script");
+	cts.type = "text/javascript";
+	cts.src = SEETOC_VISITOR_SCRIPT_PATH + "seetoc.js?" + strDate;
+	cts.async = true;
+	cts.charset = 'utf-8';
+	
+	firstScript = document.getElementsByTagName("script")[0];
+	firstScript.parentNode.insertBefore(cts, firstScript);
+
+	var isScriptLoad = false;
+
+	cts.onreadystatechange = cts.onload = function() {
+		try {
+			if (isScriptLoad) {
+				return;
+			}
+			
+			if (SeeToc == undefined) {
+				return;
+			}
+			
+			SeeToc.domReady(function(){
+				var aes = document.createElement("script");
+				aes.type = "text/javascript";
+				aes.src = SEETOC_VISITOR_SCRIPT_PATH + "AutoEvent.js?" + strDate;
+				aes.async = true;
+				aes.charset = 'utf-8';
+				var faes = document.getElementsByTagName("script")[1];
+				faes.parentNode.insertBefore(aes, faes);
+				isScriptLoad = true;
+			});
+			
+		} catch (e) {
+			isScriptLoad = false
+		}
+	}
+})();
+
+Nethru = window.Nethru || {};
+Nethru.Logging = window.Nethru.Logging || {};
+
+Nethru.Logging.isEmpty = function(val) {
+	return (val == "" || val == undefined);
+};
+
+var action_logging = function(param) {
+
+	if(param == undefined) {
+		return;
+	}
+	var option = {};
+
+	var click_logging_stem = location.protocol + "//" + _se_sid;
+	var click_logging_param = "";
+
+	var paramNames = [];
+
+	if(Object.getOwnPropertyNames != undefined) {
+		paramNames = Object.getOwnPropertyNames(param);
+	} else {
+		for (var key in param) {
+			if (param.hasOwnProperty(key)) {
+				paramNames.push(key);
+		    }
+		}
+	}
+	
+	for(var i = 0 ; i < paramNames.length ; i++) {
+			var name = paramNames[i];
+		var value = param[name];
+			if(Nethru.Logging.isEmpty(value)) {
+			continue;
+		}
+			if(name == "click_event") {
+			click_logging_stem += "/click_event/" + value;		}
+		else {
+			click_logging_param += name + "=" + value + "&";
+			option[name] = value;
+		}
+	}
+
+	if(click_logging_param == "") {
+		return;
+	}
+        click_logging_stem += "/click_event";
+	se_click_logging(click_logging_stem + "?" + click_logging_param,location.href);
+	//se_click_logging(click_logging_stem + "?_se_request="+_se_request+"&_se_referrer="+_se_referrer+"&" + click_logging_param,location.href);
+	if (SeeToc != undefined) {
+		SeeToc.logger.sendPageview(option);
+	}
+};
+
+
+Nethru.Logging.loggingEventClick = function(param) {
+        action_logging(param);
+};
+

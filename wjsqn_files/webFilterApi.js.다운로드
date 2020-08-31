@@ -1,0 +1,87 @@
+
+/**
+ * ============================================================= 
+ * 웹필터
+ */
+webFilter = new Object();
+webFilter.chkFilter = function(frm) {
+	var form = frm[0];
+
+	// Create an FormData object
+	var datas = new FormData(form);
+	
+	var rtn = "2";
+
+	 $.ajax({
+		type : "post",
+		enctype: 'multipart/form-data',
+		async: false,
+		url : "https://api73.eseoul.go.kr:5443/UPServer/",
+		data:datas,
+		crossDomain: true,
+		contentType: false,
+		processData: false,
+		success : function(data) {
+			rtn = "2";
+			if(!webFilter.parseResponse(data)){
+				rtn = "1";
+			}
+		},
+		error : function(data) {
+			rtn = "3";
+			//alert("웹필터 처리 오류!!");
+		}
+	});
+	 
+	 return rtn;
+};
+
+
+webFilter.parseResponse = function(json) {
+	var fPath;
+	var responsObj = JSON.parse(json);
+	var privacyObj = responsObj.privacy;
+
+	// 제외 항목
+	var exPrivTypes = ["6", "7", "9"]; // 일반전화, 이메일, 은행계좌번호
+
+	if ( privacyObj[0].isPriv == "1" ){
+
+		var privTypes = privacyObj[0].privType.split(',');
+		var privContents = privacyObj[0].privContent.split(',');
+		for(var i in privTypes) {
+			for(var j in exPrivTypes) {
+				if(privTypes[i] == exPrivTypes[j]) {
+					privacyObj[0].privType = privacyObj[0].privType.replace(exPrivTypes[j], '');
+					privacyObj[0].privContent = privacyObj[0].privContent.replace(privContents[i]+',', '');
+					privacyObj[0].privContent = privacyObj[0].privContent.replace(','+privContents[i], '');
+				}
+			}
+		}
+
+		var typNm = "";
+		if(privacyObj[0].privType.indexOf("1") > -1) { typNm += "주민(외국인)번호"; }
+		if(privacyObj[0].privType.indexOf("2") > -1) { if(typNm!=""){typNm += ", ";} typNm += "카드번호"; }
+		if(privacyObj[0].privType.indexOf("3") > -1) { if(typNm!=""){typNm += ", ";} typNm += "여권번호"; }
+		if(privacyObj[0].privType.indexOf("4") > -1) { if(typNm!=""){typNm += ", ";} typNm += "운전면허번호"; }
+		if(privacyObj[0].privType.indexOf("5") > -1) { if(typNm!=""){typNm += ", ";} typNm += "휴대폰번호"; }
+		if(privacyObj[0].privType.indexOf("6") > -1) { if(typNm!=""){typNm += ", ";} typNm += "일반전화번호"; }
+		if(privacyObj[0].privType.indexOf("7") > -1) { if(typNm!=""){typNm += ", ";} typNm += "이메일"; }
+		if(privacyObj[0].privType.indexOf("8") > -1) { if(typNm!=""){typNm += ", ";} typNm += "건강보험번호"; }
+		if(privacyObj[0].privType.indexOf("9") > -1) { if(typNm!=""){typNm += ", ";} typNm += "은행계좌번호"; }
+		if(privacyObj[0].privType.indexOf("10") > -1) { if(typNm!=""){typNm += ", ";} typNm += "금칙어"; }
+
+		if(typNm != "") {
+			if(privacyObj[0].checkType == "F" && typNm != "") {
+				alert("등록하신 첨부파일 중 개인정보로 인식되는 " + typNm + "( " + privacyObj[0].privContent + ")가 검출 되었습니다");
+			} else {
+				alert("등록하신 내용 중 개인정보로 인식되는 " + typNm + "( " + privacyObj[0].privContent + ")가 검출 되었습니다");
+			}
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		return false;
+	}
+}

@@ -1,0 +1,2682 @@
+var SEETOC_VISITOR_VERSION = '1.5.19';
+var SEETOC_MONITOR_SERVER_DOMAIN;
+var SEETOC_MONITOR_ACTIVE_CONNECT_MODE = false;
+var SEETOC_STATIC_SERVER_URL;
+var SEETOC_STATIC_SERVER_SECURE_URL;
+var SEETOC_CHAT_WEBAPP_URL;
+var SEETOC_CHAT_WEBAPP_REVIEW_URL;
+var SEETOC_STATIC_VISITOR_CONTEXT_PATH;
+var SEETOC_SWF_PATH;
+var SEETOC_XAP_PATH;
+var SEETOC_PING_INTERVAL_MIN_TERM = 0;
+var SEETOC_PING_INTERVAL_MAX_TERM = 12000;
+var SEETOC_PING_INTERVAL_TERM = 1000;
+var SEETOC_WEB_URL;
+var SEETOC_STATIC_UPLOAD_URL;
+var PluginDetect={version:"0.8.0",name:"PluginDetect",openTag:"<",isDefined:function(b){return typeof b!="undefined"},isArray:function(b){return(/array/i).test(Object.prototype.toString.call(b))},isFunc:function(b){return typeof b=="function"},isString:function(b){return typeof b=="string"},isNum:function(b){return typeof b=="number"},isStrNum:function(b){return(typeof b=="string"&&(/\d/).test(b))},getNumRegx:/[\d][\d\.\_,-]*/,splitNumRegx:/[\.\_,-]/g,getNum:function(b,c){var d=this,a=d.isStrNum(b)?(d.isDefined(c)?new RegExp(c):d.getNumRegx).exec(b):null;return a?a[0]:null},compareNums:function(h,f,d){var e=this,c,b,a,g=parseInt;if(e.isStrNum(h)&&e.isStrNum(f)){if(e.isDefined(d)&&d.compareNums){return d.compareNums(h,f)}c=h.split(e.splitNumRegx);b=f.split(e.splitNumRegx);for(a=0;a<Math.min(c.length,b.length);a++){if(g(c[a],10)>g(b[a],10)){return 1}if(g(c[a],10)<g(b[a],10)){return -1}}}return 0},formatNum:function(b,c){var d=this,a,e;if(!d.isStrNum(b)){return null}if(!d.isNum(c)){c=4}c--;e=b.replace(/\s/g,"").split(d.splitNumRegx).concat(["0","0","0","0"]);for(a=0;a<4;a++){if(/^(0+)(.+)$/.test(e[a])){e[a]=RegExp.$2}if(a>c||!(/\d/).test(e[a])){e[a]="0"}}return e.slice(0,4).join(",")},$$hasMimeType:function(a){return function(c){if(!a.isIE&&c){var f,e,b,d=a.isArray(c)?c:(a.isString(c)?[c]:[]);for(b=0;b<d.length;b++){if(a.isString(d[b])&&/[^\s]/.test(d[b])){f=navigator.mimeTypes[d[b]];e=f?f.enabledPlugin:0;if(e&&(e.name||e.description)){return f}}}}return null}},getPROP:function(d,b,a){var c;try{if(d){a=d[b]}}catch(c){}return a},isEnabled:{$:1,IEPluginSecurityPopup:function(){var a=this,b=a.$;return b.isIE&&b.verIE>=7?1:0},objectProperty:function(d){var c=this,e=c.$,b,a=0;if(e.isIE&&e.verIE>=7){b=e.getPROP(d,"object");if(e.isDefined(b)){a=b?1:-1}}return a}},findNavPlugin:function(l,e,c){var j=this,h=new RegExp(l,"i"),d=(!j.isDefined(e)||e)?/\d/:0,k=c?new RegExp(c,"i"):0,a=navigator.plugins,g="",f,b,m;for(f=0;f<a.length;f++){m=a[f].description||g;b=a[f].name||g;if((h.test(m)&&(!d||d.test(RegExp.leftContext+RegExp.rightContext)))||(h.test(b)&&(!d||d.test(RegExp.leftContext+RegExp.rightContext)))){if(!k||!(k.test(m)||k.test(b))){return a[f]}}}return null},getMimeEnabledPlugin:function(k,m,c){var e=this,f,b=new RegExp(m,"i"),h="",g=c?new RegExp(c,"i"):0,a,l,d,j=e.isString(k)?[k]:k;for(d=0;d<j.length;d++){if((f=e.hasMimeType(j[d]))&&(f=f.enabledPlugin)){l=f.description||h;a=f.name||h;if(b.test(l)||b.test(a)){if(!g||!(g.test(l)||g.test(a))){return f}}}}return 0},init:function(d){var c=this,b,d,a={status:-3,plugin:0};if(!c.isString(d)){return a}if(d.length==1){c.getVersionDelimiter=d;return a}d=d.toLowerCase().replace(/\s/g,"");b=c.Plugins[d];if(!b||!b.getVersion){return a}a.plugin=b;if(!c.isDefined(b.installed)){b.installed=null;b.version=null;b.version0=null;b.getVersionDone=null;b.pluginName=d}if(c.isIE&&!c.ActiveXEnabled&&d!=="java"){a.status=-2;return a}a.status=1;return a},getPluginFileVersion:function(f,b){var h=this,e,d,g,a,c=-1;if(h.OS>2||!f||!f.version||!(e=h.getNum(f.version))){return b}if(!b){return e}e=h.formatNum(e);b=h.formatNum(b);d=b.split(h.splitNumRegx);g=e.split(h.splitNumRegx);for(a=0;a<d.length;a++){if(c>-1&&a>c&&d[a]!="0"){return b}if(g[a]!=d[a]){if(c==-1){c=a}if(d[a]!="0"){return b}}}return e},AXO:window.ActiveXObject,getAXO:function(a){var d=null,c,b=this;try{d=new b.AXO(a)}catch(c){};return d},convertFuncs:function(f){var a,g,d,b=/^[\$][\$]/,c=this;for(a in f){if(b.test(a)){try{g=a.slice(2);if(g.length>0&&!f[g]){f[g]=f[a](f);delete f[a]}}catch(d){}}}},initObj:function(e,b,d){var a,c;if(e){if(e[b[0]]==1||d){for(a=0;a<b.length;a=a+2){e[b[a]]=b[a+1]}}for(a in e){c=e[a];if(c&&c[b[0]]==1){this.initObj(c,b)}}}},initScript:function(){var $=this,nav=navigator,x,doc=document,userAgent=nav.userAgent||"",vendor=nav.vendor||"",platform=nav.platform||"",product=nav.product||"";$.initObj($,["$",$]);for(x in $.Plugins){if($.Plugins[x]){$.initObj($.Plugins[x],["$",$,"$$",$.Plugins[x]],1)}}$.convertFuncs($);$.OS=100;if(platform){var data_plat=["Win",1,"Mac",2,"Linux",3,"FreeBSD",4,"iPhone",21.1,"iPod",21.2,"iPad",21.3,"Win.*CE",22.1,"Win.*Mobile",22.2,"Pocket\\s*PC",22.3,"",100];for(x=data_plat.length-2;x>=0;x=x-2){if(data_plat[x]&&new RegExp(data_plat[x],"i").test(platform)){$.OS=data_plat[x+1];break}}};$.head=doc.getElementsByTagName("head")[0]||doc.getElementsByTagName("body")[0]||doc.body||null;$.isIE=eval("/*@cc_on!@*/!1");$.verIE=$.isIE?((/MSIE\s*(\d+\.?\d*)/i).test(userAgent)?parseFloat(RegExp.$1,10):7):null;$.ActiveXEnabled=false;if($.isIE){var x,progid=["Msxml2.XMLHTTP","Msxml2.DOMDocument","Microsoft.XMLDOM","ShockwaveFlash.ShockwaveFlash","TDCCtl.TDCCtl","Shell.UIHelper","Scripting.Dictionary","wmplayer.ocx"];for(x=0;x<progid.length;x++){if($.getAXO(progid[x])){$.ActiveXEnabled=true;break}}userAgent=""};$.isGecko=(/Gecko/i).test(product)&&(/Gecko\s*\/\s*\d/i).test(userAgent);$.verGecko=$.isGecko?$.formatNum((/rv\s*\:\s*([\.\,\d]+)/i).test(userAgent)?RegExp.$1:"0.9"):null;$.isChrome=(/Chrome\s*\/\s*(\d[\d\.]*)/i).test(userAgent);$.verChrome=$.isChrome?$.formatNum(RegExp.$1):null;$.isSafari=((/Apple/i).test(vendor)||(!vendor&&!$.isChrome))&&(/Safari\s*\/\s*(\d[\d\.]*)/i).test(userAgent);$.verSafari=$.isSafari&&(/Version\s*\/\s*(\d[\d\.]*)/i).test(userAgent)?$.formatNum(RegExp.$1):null;$.isOpera=(/Opera\s*[\/]?\s*(\d+\.?\d*)/i).test(userAgent);$.verOpera=$.isOpera&&((/Version\s*\/\s*(\d+\.?\d*)/i).test(userAgent)||1)?parseFloat(RegExp.$1,10):null;$.addWinEvent("load",$.handler($.runWLfuncs,$))},handler:function(c,b,a){return function(){c(b,a)}},fPush:function(b,a){var c=this;if(c.isArray(a)&&(c.isFunc(b)||(c.isArray(b)&&b.length>0&&c.isFunc(b[0])))){a.push(b)}},callArray:function(b){var c=this,a,d;if(c.isArray(b)){d=[].concat(b);for(a=0;a<d.length;a++){c.call(d[a]);b.splice(0,1)}}},call:function(c){var b=this,a=b.isArray(c)?c.length:-1;if(a>0&&b.isFunc(c[0])){c[0](b,a>1?c[1]:0,a>2?c[2]:0,a>3?c[3]:0)}else{if(b.isFunc(c)){c(b)}}},getVersionDelimiter:",",$$getVersion:function(a){return function(g,d,c){var e=a.init(g),f,b;if(e.status<0){return null};f=e.plugin;if(f.getVersionDone!=1){f.getVersion(null,d,c);if(f.getVersionDone===null){f.getVersionDone=1}}b=(f.version||f.version0);b=b?b.replace(a.splitNumRegx,a.getVersionDelimiter):b;return b}},codebase:{$:1,isDisabled:function(){var a=this,b=a.$;return b.ActiveXEnabled&&b.isIE&&b.verIE>=7?0:1},checkGarbage:function(d){var b=this,c=b.$,a;if(c.isIE&&d&&c.isEnabled.objectProperty(d.firstChild)>0){a=c.getPROP(d.firstChild,"readyState");if(c.isNum(a)&&a!=4){b.garbage=1;return 1}}return 0},emptyGarbage:function(){var a=this,b=a.$,c;if(b.isIE&&a.garbage){try{window.CollectGarbage()}catch(c){}a.garbage=0}},init:function(d){if(!d.init){var b=this,c=b.$,a;d.init=1;d.min=0;d.max=0;d.hasRun=0;d.version=null;d.L=0;d.altHTML="";d.span=document.createElement("span");d.tagA='<object width="1" height="1" style="display:none;" codebase="#version=';d.tagB='" classid="'+d.$$.classID+'">'+d.ParamTags+d.altHTML+c.openTag+"/object>";for(a=0;a<d.Lower.length;a++){d.Lower[a]=c.formatNum(d.Lower[a]);d.Upper[a]=c.formatNum(d.Upper[a])}}},isActiveXObject:function(i,b){var f=this,g=f.$,a=0,h,d=i.$$,c=i.span;if(i.min&&g.compareNums(b,i.min)<=0){return 1}if(i.max&&g.compareNums(b,i.max)>=0){return 0}if(d.BIfuncs&&d.BIfuncs.length){g.callArray(d.BIfuncs)}c.innerHTML=i.tagA+b+i.tagB;if(g.isEnabled.objectProperty(c.firstChild)>0){a=1};f.checkGarbage(c);c.innerHTML="";if(a){i.min=b}else{i.max=b}return a},convert_:function(f,a,b,e){var d=f.convert[a],c=f.$;return d?(c.isFunc(d)?c.formatNum(d(b.split(c.splitNumRegx),e).join(",")):b):d},convert:function(h,c,g){var e=this,f=h.$,b,a,d;c=f.formatNum(c);a={v:c,x:-1};if(c){for(b=0;b<h.Lower.length;b++){d=e.convert_(h,b,h.Lower[b]);if(d&&f.compareNums(c,g?d:h.Lower[b])>=0&&(!b||f.compareNums(c,g?e.convert_(h,b,h.Upper[b]):h.Upper[b])<0)){a.v=e.convert_(h,b,c,g);a.x=b;break}}}return a},isMin:function(g,f){var d=this,e=g.$,c,b,a=0;d.init(g);return a},search:function(g){var k=this,h=k.$,i=g.$$,b=0,c;k.init(g);c=(g.hasRun||k.isDisabled())?1:0;g.hasRun=1;if(c){return g.version};var o,n,m,j=function(q,t){var r=[].concat(f),s;r[q]=t;s=k.isActiveXObject(g,r.join(","));if(s){b=1;f[q]=t}else{p[q]=t}return s},d=g.DIGITMAX,e,a,l=9999999,f=[0,0,0,0],p=[0,0,0,0];for(o=0;o<p.length;o++){f[o]=g.DIGITMIN[o]||0;e=f.join(",");a=f.slice(0,o).concat([l,l,l,l]).slice(0,f.length).join(",");for(m=0;m<d.length;m++){if(h.isArray(d[m])){d[m].push(0);if(d[m][o]>p[o]&&h.compareNums(a,g.Lower[m])>=0&&h.compareNums(e,g.Upper[m])<0){p[o]=d[m][o]}}}for(n=0;n<20;n++){if(p[o]-f[o]<=16){for(m=p[o];m>=f[o]+(o?1:0);m--){if(j(o,m)){break}}break}j(o,Math.round((p[o]+f[o])/2))}if(!b){break}p[o]=f[o]}if(b){g.version=k.convert(g,f.join(",")).v};return g.version}},addWinEvent:function(d,c){var e=this,a=window,b;if(e.isFunc(c)){if(a.addEventListener){a.addEventListener(d,c,false)}else{if(a.attachEvent){a.attachEvent("on"+d,c)}else{b=a["on"+d];a["on"+d]=e.winHandler(c,b)}}}},winHandler:function(d,c){return function(){d();if(typeof c=="function"){c()}}},WLfuncs0:[],WLfuncs:[],runWLfuncs:function(a){a.winLoaded=true;a.callArray(a.WLfuncs0);a.callArray(a.WLfuncs);if(a.DOM){a.DOM.onDoneEmptyDiv()}},winLoaded:false,$$onWindowLoaded:function(a){return function(b){if(a.winLoaded){a.call(b)}else{a.fPush(b,a.WLfuncs)}}},DOM:{$:1,div:null,divID:"plugindetect",divWidth:50,pluginSize:1,altHTML:"&nbsp;&nbsp;&nbsp;&nbsp;",emptyNode:function(c){var b=this,d=b.$,a,f;if(c&&c.childNodes){for(a=c.childNodes.length-1;a>=0;a--){try{if(d.isIE){c.childNodes[a].style.display="none"}}catch(f){}}try{c.innerHTML=""}catch(f){}}},LASTfuncs:[],onDoneEmptyDiv:function(){var f=this,g=f.$,b,d,c,a,h;if(!g.winLoaded||g.WLfuncs0.length||g.WLfuncs.length){return}for(b in g.Plugins){d=g.Plugins[b];if(d){if(d.OTF==3||(d.funcs&&d.funcs.length)){return}}}g.callArray(f.LASTfuncs);if(f.div&&f.div.childNodes){for(b=f.div.childNodes.length-1;b>=0;b--){c=f.div.childNodes[b];f.emptyNode(c)}try{f.div.innerHTML=""}catch(h){}}if(!f.div){a=document.getElementById(f.divID);if(a){f.div=a}}if(f.div&&f.div.parentNode){try{f.div.parentNode.removeChild(f.div)}catch(h){}f.div=null}},width:function(){var e=this,c=e.DOM,d=c.$,a=-1,b=e.span;return b?(d.isNum(b.scrollWidth)?b.scrollWidth:(d.isNum(b.offsetWidth)?b.offsetWidth:a)):a},obj:function(b){var g=this,d=g.DOM,c=g.span,f,a=c&&c.firstChild?c.firstChild:null;try{if(a&&b){d.div.focus()}}catch(f){}return a},getTagStatus:function(i,g,a,b){if(!i||!g||!a){return -2}var j=this,c=j.$,f,d=i.width(),k=a.width(),h=g.width();if(!a.span||!g.span||!i.obj()){return -2}if(d<0||k<0||h<0||h<=j.pluginSize||k<h){return 0}if(d>=h){return -1}try{if(d==j.pluginSize&&(!c.isIE||c.getPROP(i.obj(),"readyState")==4)){if(!i.winLoaded&&c.winLoaded){return 1}if(i.winLoaded&&c.isNum(b)){if(!c.isNum(i.count)){i.count=b}if(b-i.count>=10){return 1}}}}catch(f){}return 0},setStyle:function(b,h){var c=this,d=c.$,g=b.style,a,f;if(g&&h){for(a=0;a<h.length;a=a+2){try{g[h[a]]=h[a+1]}catch(f){}}}},insertDivInBody:function(a,h){var j=this,d=j.$,g,b="pd33993399",c=null,i=h?window.top.document:window.document,f=i.getElementsByTagName("body")[0]||i.body;if(!f){try{i.write('<div id="'+b+'">.'+d.openTag+"/div>");c=i.getElementById(b)}catch(g){}}f=i.getElementsByTagName("body")[0]||i.body;if(f){f.insertBefore(a,f.firstChild);if(c){f.removeChild(c)}}},insert:function(f,b,g,a,k){var p=this,j=p.$,l,m=document,r,q,o=m.createElement("span"),n,i,c=["outlineStyle","none","borderStyle","none","padding","0px","margin","0px","visibility","visible"],h="outline-style:none;border-style:none;padding:0px;margin:0px;visibility:visible;";if(!j.isDefined(a)){a=""}if(j.isString(f)&&(/[^\s]/).test(f)){f=f.toLowerCase().replace(/\s/g,"");r=j.openTag+f+' width="'+p.pluginSize+'" height="'+p.pluginSize+'" ';r+='style="'+h+'display:inline;" ';for(n=0;n<b.length;n=n+2){if(/[^\s]/.test(b[n+1])){r+=b[n]+'="'+b[n+1]+'" '}}r+=">";for(n=0;n<g.length;n=n+2){if(/[^\s]/.test(g[n+1])){r+=j.openTag+'param name="'+g[n]+'" value="'+g[n+1]+'" />'}}r+=a+j.openTag+"/"+f+">"}else{f="";r=a}if(!p.div){i=m.getElementById(p.divID);if(i){p.div=i}else{p.div=m.createElement("div");p.div.id=p.divID}p.setStyle(p.div,c.concat(["width",p.divWidth+"px","height",(p.pluginSize+3)+"px","fontSize",(p.pluginSize+3)+"px","lineHeight",(p.pluginSize+3)+"px","verticalAlign","baseline","display","block"]));if(!i){p.setStyle(p.div,["position","absolute","right","0px","top","0px"]);p.insertDivInBody(p.div)}}q={span:null,winLoaded:j.winLoaded,tagName:f,outerHTML:r,DOM:p,width:p.width,obj:p.obj};if(p.div&&p.div.parentNode){p.setStyle(o,c.concat(["fontSize",(p.pluginSize+3)+"px","lineHeight",(p.pluginSize+3)+"px","verticalAlign","baseline","display","inline"]));p.div.appendChild(o);try{o.innerHTML=r}catch(l){};q.span=o;q.winLoaded=j.winLoaded}return q}},Plugins:{quicktime:{mimeType:["video/quicktime","application/x-quicktimeplayer","image/x-macpaint","image/x-quicktime"],progID:"QuickTimeCheckObject.QuickTimeCheck.1",progID0:"QuickTime.QuickTime",classID:"clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B",codebase:{$:1,isMin:function(a){return this.$.codebase.isMin(this,a)},search:function(){return this.$.codebase.search(this)},ParamTags:'<param name="src" value="" /><param name="controller" value="false" />',DIGITMAX:[[12,11,11],[7,60],[7,11,11],0,[7,11,11]],DIGITMIN:[5,0,0,0],Upper:["999","7,60","7,50","7,6","7,5"],Lower:["7,60","7,50","7,6","7,5","0"],convert:[1,function(b,a){return a?[b[0],b[1]+b[2],b[3],"0"]:[b[0],b[1].charAt(0),b[1].charAt(1),b[2]]},1,0,1]},setPluginStatus:function(d,a,f){var e=this,c=e.$,b=e.installed;e.installed=a?1:(f?(f>0?0.7:-0.1):(d?0:-1));if(a){e.version=c.formatNum(a,3)}e.getVersionDone=e.installed==0.7||e.installed==-0.1?0:1;c.codebase.emptyGarbage()},getVersion:function(c){var h=this,d=h.$,a=null,g=null,b,f;if(!d.isIE){if(d.hasMimeType(h.mimeType)){g=d.OS!=3?d.findNavPlugin("QuickTime.*Plug-?in",0):null;if(g&&g.name){a=d.getNum(g.name)}}}else{if(d.isStrNum(c)){b=c.split(d.splitNumRegx);if(b.length>3&&parseInt(b[3],10)>0){b[3]="9999"}c=b.join(",")}b=h.codebase.isMin(c);if(b){h.setPluginStatus(0,0,b);return}if(!a||d.debug){a=h.codebase.search()}if(!a||d.debug){g=d.getAXO(h.progID);b=d.getPROP(g,"QuickTimeVersion");if(b&&b.toString){a=b.toString(16);a=parseInt(a.charAt(0)||"0",16)+"."+parseInt(a.charAt(1)||"0",16)+"."+parseInt(a.charAt(2)||"0",16)}}}h.setPluginStatus(g,a)}},flash:{mimeType:"application/x-shockwave-flash",progID:"ShockwaveFlash.ShockwaveFlash",classID:"clsid:D27CDB6E-AE6D-11CF-96B8-444553540000",getVersion:function(){var b=function(i){if(!i){return null}var e=/[\d][\d\,\.\s]*[rRdD]{0,1}[\d\,]*/.exec(i);return e?e[0].replace(/[rRdD\.]/g,",").replace(/\s/g,""):null};var j=this,g=j.$,k,h,l=null,c=null,a=null,f,m,d;if(!g.isIE){m=g.hasMimeType(j.mimeType);if(m){f=g.DOM.insert("object",["type",j.mimeType],[],"",j).obj();try{l=g.getNum(f.GetVariable("$version"))}catch(k){}}if(!l){d=m?m.enabledPlugin:null;if(d&&d.description){l=b(d.description)}if(l){l=g.getPluginFileVersion(d,l)}}}else{for(h=15;h>2;h--){c=g.getAXO(j.progID+"."+h);if(c){a=h.toString();break}}if(!c){c=g.getAXO(j.progID)}if(a=="6"){try{c.AllowScriptAccess="always"}catch(k){return"6,0,21,0"}}try{l=b(c.GetVariable("$version"))}catch(k){}if(!l&&a){l=a}}j.installed=l?1:-1;j.version=g.formatNum(l);return true}},shockwave:{mimeType:"application/x-director",progID:"SWCtl.SWCtl",classID:"clsid:166B1BCA-3F9C-11CF-8075-444553540000",getVersion:function(){var a=null,b=null,g,f,d=this,c=d.$;if(!c.isIE){f=c.findNavPlugin("Shockwave\\s*for\\s*Director");if(f&&f.description&&c.hasMimeType(d.mimeType)){a=c.getNum(f.description)}if(a){a=c.getPluginFileVersion(f,a)}}else{try{b=c.getAXO(d.progID).ShockwaveVersion("")}catch(g){}if(c.isString(b)&&b.length>0){a=c.getNum(b)}else{if(c.getAXO(d.progID+".8")){a="8"}else{if(c.getAXO(d.progID+".7")){a="7"}else{if(c.getAXO(d.progID+".1")){a="6"}}}}}d.installed=a?1:-1;d.version=c.formatNum(a)}},windowsmediaplayer:{mimeType:["application/x-mplayer2","application/asx","application/x-ms-wmp"],navPluginObj:null,progID:"wmplayer.ocx",classID:"clsid:6BF52A52-394A-11D3-B153-00C04F79FAA6",INSTALLED:{dfault:null,inputMime:{}},getVersion:function(i,g){var c=this,f=c.$,l,e=null,h=null,j=c.mimeType,k="Totem|VLC",b,d,a;c.installed=-1;if(f.isString(g)){g=g.replace(/\s/g,"");if(g){j=g}}else{g=null}if(g){d=c.INSTALLED.inputMime[g];if(f.isDefined(d)){c.installed=d;return}}else{d=c.INSTALLED.dfault;if(d!==null){c.installed=d;return}}if(!f.isIE){if(f.OS<20&&f.OS>=3){c.installed=-1;return}a={wmp:"Windows\\s*Media\\s*Player.*Plug-?in|Flip4Mac.*Windows\\s*Media.*Plug-?in",wmpFirefox:"Windows\\s*Media\\s*Player.*Firefox.*Plug-?in",avoidPlayers:"Totem|VLC|RealPlayer"};if(c.getVersionDone===null){c.getVersionDone=0;e=f.getMimeEnabledPlugin(c.mimeType,a.wmp,a.avoidPlayers);if(!g){l=e}if(!e&&f.hasMimeType(c.mimeType)){e=f.findNavPlugin(a.wmp,0,a.avoidPlayers)}if(e){c.navPluginObj=e;b=(f.isGecko&&f.compareNums(f.verGecko,f.formatNum("1.8"))<0);b=b||(f.isOpera&&f.verOpera<10);b=b||f.isChrome;if(!b&&f.getMimeEnabledPlugin(c.mimeType[2],a.wmpFirefox,a.avoidPlayers)){h=f.getPROP(f.DOM.insert("object",["type",c.mimeType[2],"data",""],["src",""],"",c).obj(),"versionInfo")||h}}}else{h=c.version}if(!f.isDefined(l)){l=f.getMimeEnabledPlugin(j,a.wmp,a.avoidPlayers)}c.installed=l&&h?1:(l?0:(c.navPluginObj?-0.2:-1))}else{e=f.getAXO(c.progID);h=f.getPROP(e,"versionInfo")||h;c.installed=e&&h?1:(e?0:-1)}if(!c.version){c.version=f.formatNum(h)}if(g){c.INSTALLED.inputMime[g]=c.installed}else{c.INSTALLED.dfault=c.installed}}},silverlight:{mimeType:"application/x-silverlight",progID:"AgControl.AgControl",digits:[20,20,9,12,31],getVersion:function(){var e=this,c=e.$,k=document,i=null,b=null,f=null,h=true,a=[1,0,1,1,1],r=[1,0,1,1,1],j=function(d){return(d<10?"0":"")+d.toString()},n=function(s,d,u,v,t){return(s+"."+d+"."+u+j(v)+j(t)+".0")},o=function(s,d,t){return q(s,(d==0?t:r[0]),(d==1?t:r[1]),(d==2?t:r[2]),(d==3?t:r[3]),(d==4?t:r[4]))},q=function(v,t,s,x,w,u){var u;try{return v.IsVersionSupported(n(t,s,x,w,u))}catch(u){}return false};if(!c.isIE){var g;if(c.hasMimeType(e.mimeType)){g=c.isGecko&&c.compareNums(c.verGecko,c.formatNum("1.6"))<=0;if(c.isGecko&&g){h=false}f=c.findNavPlugin("Silverlight.*Plug-?in",0);if(f&&f.description){i=c.formatNum(f.description)}if(i){r=i.split(c.splitNumRegx);if(parseInt(r[2],10)>=30226&&parseInt(r[0],10)<2){r[0]="2"}i=r.join(",")}}e.installed=f&&h&&i?1:(f&&h?0:(f?-0.2:-1))}else{b=c.getAXO(e.progID);var m,l,p;if(b&&q(b,a[0],a[1],a[2],a[3],a[4])){for(m=0;m<e.digits.length;m++){p=r[m];for(l=p+(m==0?0:1);l<=e.digits[m];l++){if(o(b,m,l)){h=true;r[m]=l}else{break}}if(!h){break}}if(h){i=n(r[0],r[1],r[2],r[3],r[4])}}e.installed=b&&h&&i?1:(b&&h?0:(b?-0.2:-1))}e.version=c.formatNum(i)}},adobereader:{mimeType:"application/pdf",navPluginObj:null,progID:["AcroPDF.PDF","PDF.PdfCtrl"],classID:"clsid:CA8A9780-280D-11CF-A24D-444553540000",INSTALLED:{},pluginHasMimeType:function(d,c,f){var b=this,e=b.$,a;for(a in d){if(d[a]&&d[a].type&&d[a].type==c){return 1}}if(e.getMimeEnabledPlugin(c,f)){return 1}return 0},getVersion:function(l,j){var g=this,d=g.$,i,f,m,n,b=null,h=null,k=g.mimeType,a,c;if(d.isString(j)){j=j.replace(/\s/g,"");if(j){k=j}}else{j=null}if(d.isDefined(g.INSTALLED[k])){g.installed=g.INSTALLED[k];return}if(!d.isIE){a="Adobe.*PDF.*Plug-?in|Adobe.*Acrobat.*Plug-?in|Adobe.*Reader.*Plug-?in";if(g.getVersionDone!==0){g.getVersionDone=0;b=d.getMimeEnabledPlugin(g.mimeType,a);if(!j){n=b}if(!b&&d.hasMimeType(g.mimeType)){b=d.findNavPlugin(a,0)}if(b){g.navPluginObj=b;h=d.getNum(b.description)||d.getNum(b.name);h=d.getPluginFileVersion(b,h);if(!h&&d.OS==1){if(g.pluginHasMimeType(b,"application/vnd.adobe.pdfxml",a)){h="9"}else{if(g.pluginHasMimeType(b,"application/vnd.adobe.x-mars",a)){h="8"}}}}}else{h=g.version}if(!d.isDefined(n)){n=d.getMimeEnabledPlugin(k,a)}g.installed=n&&h?1:(n?0:(g.navPluginObj?-0.2:-1))}else{b=d.getAXO(g.progID[0])||d.getAXO(g.progID[1]);c=/=\s*([\d\.]+)/g;try{f=(b||d.DOM.insert("object",["classid",g.classID],["src",""],"",g).obj()).GetVersions();for(m=0;m<5;m++){if(c.test(f)&&(!h||RegExp.$1>h)){h=RegExp.$1}}}catch(i){}g.installed=h?1:(b?0:-1)}if(!g.version){g.version=d.formatNum(h)}g.INSTALLED[k]=g.installed}},realplayer:{mimeType:["audio/x-pn-realaudio-plugin"],progID:["rmocx.RealPlayer G2 Control","rmocx.RealPlayer G2 Control.1","RealPlayer.RealPlayer(tm) ActiveX Control (32-bit)","RealVideo.RealVideo(tm) ActiveX Control (32-bit)","RealPlayer"],classID:"clsid:CFCDAA03-8BE4-11cf-B84B-0020AFBBCCFA",INSTALLED:{},q1:[[11,0,0],[999],[663],[663],[663],[660],[468],[468],[468],[468],[468],[468],[431],[431],[431],[372],[180],[180],[172],[172],[167],[114],[0]],q3:[[6,0],[12,99],[12,69],[12,69],[12,69],[12,69],[12,69],[12,69],[12,69],[12,69],[12,69],[12,69],[12,46],[12,46],[12,46],[11,3006],[11,2806],[11,2806],[11,2804],[11,2804],[11,2799],[11,2749],[11,2700]],compare:function(g,f){var e,d=g.length,i=f.length,c,h;for(e=0;e<Math.max(d,i);e++){c=e<d?g[e]:0;h=e<i?f[e]:0;if(c>h){return 1}if(c<h){return -1}}return 0},convertNum:function(a,f,e){var g=this,c=g.$,d,b,h,i=null;if(!a||!(d=c.formatNum(a))){return i}d=d.split(c.splitNumRegx);for(h=0;h<d.length;h++){d[h]=parseInt(d[h],10)}if(g.compare(d.slice(0,Math.min(f[0].length,d.length)),f[0])!=0){return i}b=d.length>f[0].length?d.slice(f[0].length):[];if(g.compare(b,f[1])>0||g.compare(b,f[f.length-1])<0){return i}for(h=f.length-1;h>=1;h--){if(h==1){break}if(g.compare(f[h],b)==0&&g.compare(f[h],f[h-1])==0){break}if(g.compare(b,f[h])>=0&&g.compare(b,f[h-1])<0){break}}return e[0].join(".")+"."+e[h].join(".")},getVersion:function(m,n){var j=this,k=null,c=0,g=0,d=j.$,q,i,s,a=j.mimeType[0];if(d.isString(n)){n=n.replace(/\s/g,"");if(n){a=n}}else{n=null}if(d.isDefined(j.INSTALLED[a])){j.installed=j.INSTALLED[a];return}if(!d.isIE){var l="RealPlayer.*Plug-?in",h=d.hasMimeType(j.mimeType),o=d.findNavPlugin(l,0);if(h&&o){c=1;if(n){if(d.getMimeEnabledPlugin(n,l)){g=1}else{g=0}}else{g=1}}if(j.getVersionDone!==0){j.getVersionDone=0;if(h){var p=1,b=null,r=null;s=d.hasMimeType("application/vnd.rn-realplayer-javascript");if(s){b=d.formatNum(d.getNum(s.enabledPlugin.description))}if(d.OS==1&&b){var f=b.split(d.splitNumRegx);r=true;if(j.compare(f,[6,0,12,200])<0){r=false}else{if(j.compare(f,[6,0,12,1739])<=0&&j.compare(f,[6,0,12,857])>=0){r=false}}}if(r===false){p=0}if(d.OS<=2){if(d.isGecko&&d.compareNums(d.verGecko,d.formatNum("1,8"))<0){p=0}if(d.isChrome){p=0}if(d.isOpera&&d.verOpera<10){p=0}}else{p=0}if(p){s=d.DOM.insert("object",["type",j.mimeType[0]],["src","","autostart","false","imagestatus","false","controls","stopbutton"],"",j).obj();try{k=d.getNum(s.GetVersionInfo())}catch(q){}d.DOM.setStyle(s,["display","none"])}if(!k&&b&&r===false){s=j.convertNum(b,j.q3,j.q1);k=s?s:b}}}else{k=j.version}j.installed=c&&g&&k?1:(c&&g?0:(c?-0.2:-1))}else{s=null;for(i=0;i<j.progID.length;i++){s=d.getAXO(j.progID[i]);if(s){try{k=d.getNum(s.GetVersionInfo());break}catch(q){}}}j.installed=k?1:-1}if(!j.version){j.version=d.formatNum(k)}j.INSTALLED[a]=j.installed}},zz:0}};PluginDetect.initScript();var SeeToc = {};
+/**
+ * JSONP 방식으로 Http 요청을 보내는 역할을 하는 클래스이다.
+ * 
+ * @param {String}
+ *            _src, {Object} _options, {Boolean} _async
+ */
+SeeToc.Request = function(_src, _options, _async) {
+	this.src = _src, this.options = _options || {}, this.async = _async || true;
+
+	var pntr = false;
+
+	this.initialize = function() {
+		pntr = this;
+	};
+
+	this.load = function() {
+
+		/*
+		 * 이전에 설치한 script가 존재한다면 이를 삭재하고 삽입합니다.
+		 */
+		var old_scripts = document.getElementsByTagName("script");
+		var last_scripts = true;
+
+		for ( var i = 0; i < old_scripts.length; i++) {
+
+			if (old_scripts[i]['seetoc']) {
+
+				var del_sh = true;
+
+				if (old_scripts[i].src.indexOf('/state/')) {
+					if (last_scripts) {
+						del_sh = false;
+						last_scripts = false;
+					}
+				}
+
+				if (del_sh)
+					old_scripts[i].parentNode.removeChild(old_scripts[i]);
+			}
+		}
+
+		var script = document.createElement('script');
+		script.type = 'text/javascript';
+		script.src = pntr.src + '&END';
+		script.async = pntr.async;
+		script.charset = 'UTF-8';
+		// seetoc JSONP 방식으로 삽입된 스크립트 여부를 추가
+		script['seetoc'] = true;
+
+		var success = pntr.options.success;
+		var error = pntr.options.error;
+
+		if (success) {
+			if (typeof (script.onreadystatechange) != 'undefined') {
+				script.onreadystatechange = function() {
+					if (this.readyState == 'complete'
+							|| this.readyState == 'loaded') {
+						setTimeout(success, 400);
+					}
+				}
+			} else {
+				script.onload = function() {
+					setTimeout(function() {
+						success.apply();
+					}, 400);
+				}
+			}
+		}
+		if (error) {
+			script.onerror = function() {
+				setTimeout(function() {
+					error.apply();
+				}, 400);
+			};
+		}
+
+		var ssc = document.getElementsByTagName('script')[0];
+		ssc.parentNode.insertBefore(script, ssc);
+
+		return script;
+	};
+
+	this.initialize();
+};
+SeeToc.Enum = function(){
+	this.MODE = {NEW : 'NEW', PRIVATE : 'PRVT', DELETE_COOKIE : 'DLCO', CHANG_IP : 'CHIP'};
+	this.UNIQUE = {PLUG : 'PLUG', FONT : 'FONT', USER_AGENT : 'UAGT', SCREEN : 'SCRE'};
+	this.MEDIUM = {NVR_CLCK_CHC : '네이버 클릭', OVRTR : '오버추어', DM_CLCK : '다음 클릭스', GOOGLE_ADWRD : '구글 애드워즈'}
+};
+SeeToc.ENUM = new SeeToc.Enum; SeeToc.domReady = (function () {
+    var isPageLoaded = false,
+        readyCalls = [],
+        isTop, testDiv, scrollIntervalId;
+    
+    function runCallbacks (callbacks) {
+        for (var i=0; i<callbacks.length; i++) {
+            callbacks[i]();
+        }
+    }
+    
+    function callReady () {
+        var callbacks = readyCalls;
+        
+        if (isPageLoaded) {
+            if (callbacks.length) {
+                readyCalls = [];
+                runCallbacks(callbacks);
+            }
+        }
+    }
+    
+    function pageLoaded () {
+        if (!isPageLoaded) {
+            isPageLoaded = true;
+            if (scrollIntervalId) {
+                clearInterval(scrollIntervalId);
+            }
+            callReady();
+        }
+    }
+    
+    if (document.addEventListener) {
+        document.addEventListener("DOMContentLoaded", pageLoaded, false);
+        window.addEventListener("load", pageLoaded, false);
+    } else if (window.attachEvent) {
+        window.attachEvent("onload", pageLoaded);
+        
+        testDiv = document.createElement('div');
+        try {
+            isTop = window.frameElement === null;
+        } catch (e) {}
+        
+        if (testDiv.doScroll && isTop && window.external) {
+            scrollIntervalId = setInterval(function () {
+                try {
+                    testDiv.doScroll();
+                    pageLoaded();
+                } catch (e) {}
+            }, 30);
+        }
+    }
+    
+    if (document.readyState === 'complete') {
+        pageLoaded();
+    }
+    
+    function domReady (callback) {
+        if (isPageLoaded) {
+            callback();
+        } else {
+            readyCalls.push(callback);
+        }
+    }
+    
+    return domReady;
+})();SeeToc.Util = function() {
+	
+	// navigator와 document 를 여러번 접근하지 않고 변수에 캐싱해서 사용한다
+	var ua = navigator.userAgent.toLowerCase();
+	var dom = document;
+	var domAll = dom.all;
+	var domCompatMode = dom.compatMode.toLowerCase();
+	var domMode = dom.documentMode;
+	
+	// 브라우저 코드
+	var BROWSER_CODE_MSIE = 'IE';
+	var BROWSER_CODE_CHROME = 'CHRM';
+	var BROWSER_CODE_SAFARI = 'SFR';
+	var BROWSER_CODE_FIREFOX = 'FF';
+	var BROWSER_CODE_OPERA = 'OPR';
+	var BROWSER_CODE_UNKNOWN = 'UNKNOWN';
+	
+	// 현재 브라우저가 무엇인지 판단한다
+	var _browserCode = (function() {
+		if (ua.indexOf('msie') >= 0) {
+			return BROWSER_CODE_MSIE;
+		}
+		else if (ua.indexOf('webkit') >= 0) {
+			return window.chrome ? BROWSER_CODE_CHROME : BROWSER_CODE_SAFARI;
+		}
+		else if (ua.indexOf('firefox') >= 0) {
+			return BROWSER_CODE_FIREFOX;
+		}
+		else if (ua.indexOf('opera') >= 0) {
+			return BROWSER_CODE_OPERA;
+		}
+		return BROWSER_CODE_UNKNOWN;
+	})();
+	
+	this.browser = {
+		userAgent : navigator.userAgent,
+		isOpera : (ua.indexOf('opera') >= 0) ? true : false,
+		isFirefox : (ua.indexOf('firefox') >= 0) ? true : false,
+		isMSIE : (ua.indexOf('msie') >= 0) ? true : false,
+		isMSIE6 : (ua.indexOf('msie 6.0') >= 0) ? true : false,
+		isMSIE7 : (ua.indexOf('msie 7.0') >= 0) ? true : false,
+		isMSIE8 : (ua.indexOf('msie 8.0') >= 0) ? true : false,
+		isMSIE9 : (ua.indexOf('msie 9.0') >= 0) ? true : false,
+		isMSIE10 : (ua.indexOf('msie 10.0') >= 0) ? true : false,
+		isWebKit : (ua.indexOf('webkit') >= 0) ? true : false,
+		isGTB : (ua.indexOf('gtb') >= 0) ? true : false,
+		isQuirkMode : (domAll && domCompatMode == "backcompat") ? true : false,
+		CSS1Compat : (domAll && domCompatMode == "css1compat") ? true : false,
+		documentMode : domMode,
+		oldDocument : (dom && domMode <= 7) ? true : false,
+		isLegacyMSIE7 : ((ua.indexOf('msie 7.0') >= 0) && (dom && (typeof domMode == 'undefined'))) ? true : false,
+		navigatorVersion : navigator.appVersion.replace(/.*?MSIE (\d*\.\d).*/g, '$1') / 1,
+		code : _browserCode
+	};
+
+	this.createElement = function(name, object, doc) {
+		doc = doc || document;
+
+		var el = doc.createElement(name);
+		for ( var i in object) {
+			if (i == "style" && this.browser.isMSIE) {
+				el.style.cssText = object[i];
+			} else {
+				el.setAttribute(i, object[i]);
+			}
+		}
+		return el;
+	};
+
+	this.getElementsValueByName = function(name, doc) {
+
+		doc = doc || document;
+		
+		var list;
+		var result = "";
+
+		if (doc.getElementsByName) {
+			list = doc.getElementsByName(name);
+
+			if (list.length == 1) {
+				result = list[0].value;
+			} else if (list.length > 1) {
+				// 동일한 name의 Element가 존재하는 경우가 있다. 이 경우 값이 존재하는 Element의 값을 설정한다.
+				for ( var i = 0; i < list.length && result.length == 0; i++) {
+					result = list[i].value;
+				}
+			} else {
+				result = "";
+			}
+		} 
+
+		return result;
+	};
+
+	this.getElementsByClassName = function(className, doc) {
+		doc = doc || document;
+		if (doc.getElementsByClassName) {
+			return doc.getElementsByClassName(className);
+		} else {
+			var list = [];
+			var elems = doc.getElementsByTagName('*');
+			for ( var i = 0, len = elems.length; i < len; i++) {
+				var elem = elems[i];
+				var classes = elem.className;
+				if (classes.indexOf(className) >= 0) {
+					list.push(elem);
+				}
+			}
+			return list;
+		}
+	};
+
+	this.getElementById = function(id, doc) {
+		doc = doc || document;
+
+		return doc.getElementById(id);
+	};
+
+	this.addEvent = function(target, type, handler) {
+		if (target.addEventListener) {
+			target.addEventListener(type, handler, false);
+		} else {
+			target.attachEvent('on' + type, function(event) {
+				return handler.call(target, event);
+			});
+		}
+	}
+
+	this.getViewportWidth = function(win) {
+		win = win || window;
+		if (win.innerWidth != null) {
+			return win.innerWidth;
+		}
+
+		var doc = win.document;
+		if (doc.compatMode == 'CSS1Compat') {
+			return doc.documentElement.clientWidth;
+		}
+
+		return doc.body.clientWidth;
+	};
+
+	this.getViewportHeight = function(win) {
+		win = win || window;
+		if (win.innerWidth != null) {
+			return win.innerHeight;
+		}
+
+		var doc = win.document;
+		if (doc.compatMode == 'CSS1Compat') {
+			return doc.documentElement.clientHeight;
+		}
+
+		return doc.body.clientHeight;
+	};
+
+	this.getDocumentWidth = function(doc) {
+		doc = doc || document;
+		if (doc.compatMode == 'CSS1Compat') {
+			return doc.documentElement.scrollWidth;
+		}
+		return doc.body.scrollWidth;
+	};
+
+	this.getDocumentHeight = function(doc) {
+		doc = doc || document;
+		if (doc.compatMode == 'CSS1Compat') {
+			return doc.documentElement.scrollHeight;
+		}
+		return doc.body.scrollHeight;
+	};
+
+	this.getHorizontalScroll = function(win) {
+		win = win || window;
+		if (win.pageXOffset != null) {
+			return win.pageXOffset;
+		}
+
+		var doc = win.document;
+		if (doc.compatMode == 'CSS1Compat') {
+			return doc.documentElement.scrollLeft;
+		}
+		return doc.body.scrollLeft;
+	};
+
+	this.getVerticalScroll = function(win) {
+		win = win || window;
+		if (win.pageXOffset != null) {
+			return win.pageYOffset;
+		}
+
+		var doc = win.document;
+		if (doc.compatMode == 'CSS1Compat') {
+			return doc.documentElement.scrollTop;
+		}
+		return doc.body.scrollTop;
+	};
+
+	this.getScreenX = function(win) {
+		win = win || window;
+		if (win.screenLeft != null) {
+			return win.screenLeft;
+		}
+		return win.screenX;
+	};
+
+	this.getScreenY = function(win) {
+		win = win || window;
+		if (win.screenTop != null) {
+			return win.screenTop;
+		}
+		return win.screenY;
+	};
+
+	/**
+	 * 브라우저의 폭을 반환한다. 브라우저의 폭을 알 수 없을 경우에는 뷰포트의 폭을 반환한다.
+	 */
+	this.getWindowWidth = function(win) {
+		win = win || window;
+		if (window.outerWidth != null) {
+			return window.outerWidth;
+		}
+		var doc = win.document;
+		if (doc.compatMode == 'CSS1Compat') {
+			return doc.documentElement.clientWidth;
+		}
+
+		return doc.body.clientWidth;
+	};
+
+	/**
+	 * 브라우저의 높이를 반환한다. 브라우저의 높이를 알 수 없을 경우에는 뷰포트의 높이를 반환한다.
+	 */
+	this.getWindowHeight = function(win) {
+		win = win || window;
+		if (win.outerHeight != null) {
+			return win.innerHeight;
+		}
+		var doc = win.document;
+		if (doc.compatMode == 'CSS1Compat') {
+			return doc.documentElement.clientHeight;
+		}
+
+		return doc.body.clientHeight;
+	}
+
+	this.getElementWidth = function(elem) {
+		var box = elem.getBoundingClientRect();
+		return box.width || (box.right - box.left);
+	};
+
+	this.getElementHeight = function(elem) {
+		var box = elem.getBoundingClientRect();
+		return box.height || (box.bottom - box.top);
+	};
+
+	this.generateRandomString = function(length) {
+		var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		length = length || 8;
+
+		var rs = [];
+		for ( var i = 0; i < length; i++) {
+			var rn = Math.floor(Math.random() * chars.length);
+			rs.push(chars.substring(rn, rn + 1));
+		}
+		return rs.join('');
+	};
+
+	this.formatTime = function(time) {
+		var timeRegExp = new RegExp('[0-9]{2}:[0-9]{2}:[0-9]{2}');
+		var timeStr = timeRegExp.exec(new Date(time).toTimeString())[0];
+
+		var timeArr = timeStr.split(':');
+
+		var hour = timeArr[0];
+		var min = timeArr[1];
+
+		var prefix = 'AM';
+		if (hour >= 12) {
+			prefix = 'PM';
+		}
+
+		var result = '' + prefix + ' ' + hour + ':' + min;
+		return result;
+	};
+
+	this.formatDateTime = function(time) {
+
+		var date = new Date(time);
+
+		var result = this.maskFill(date.getFullYear(), '0', 4) + '.' 
+					+ this.maskFill((date.getMonth() + 1), '0', 2) + '.'
+				+ this.maskFill(date.getDate(), '0', 2) + ' (' + this.maskFill(date.getHours(), '0', 2) + ':'
+				+ this.maskFill(date.getMinutes(), '0', 2) + ':' + this.maskFill(date.getSeconds(), '0', 2) + ')';
+		return result;
+	};
+	
+	this.maskFill = function(val, mask, size) {
+		
+		var result = '';
+		
+		val = val + '';
+		
+		for(var i = val.length ; i < size ; i++)
+		{
+			result += mask;
+		}
+		
+		return result + val;
+	};
+
+	this.convertMessage = function(message) {
+
+		var tagRegExp = /<[^>]+>/g;
+		var exec = new RegExp(tagRegExp).exec(message);
+
+		message = message.split('\r\n').join('<br/>');
+		message = message.split('\n').join('<br/>');
+
+		if (!exec) {
+			var urlRegExp = /\b(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?\b/ig;
+			var urlReplace = function($0) {
+				return '<a href="' + $0 + '" target="blank">' + $0 + '</a>';
+			}
+
+			message = message.replace(urlRegExp, urlReplace);
+		}
+
+		return message;
+	};
+
+	this.sleep = function(msecs) {
+		var start = new Date().getTime();
+		var cur = start;
+		while (cur - start < msecs) {
+			cur = new Date().getTime();
+		}
+	};
+
+	this.pxPlus = function(arg1, arg2) {
+		return this.pxToNumber(arg1) + this.pxToNumber(arg2);
+	};
+	this.pxMinus = function(arg1, arg2) {
+		return this.pxToNumber(arg1) - this.pxToNumber(arg2);
+	};
+	
+	this.pxToNumber = function (arg1){
+		if (!arg1)
+			arg1 = 0;
+
+		if (typeof (arg1) != 'string')
+			arg1 = arg1 + '';
+
+		return Number(arg1.replace('px', ''));
+	};
+
+	this.md5 = function(str) {
+		// http://kevin.vanzonneveld.net
+		// + original by: Webtoolkit.info (http://www.webtoolkit.info/)
+		// + namespaced by: Michael White (http://getsprink.com)
+		// + tweaked by: Jack
+		// + improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+		// + input by: Brett Zamir (http://brett-zamir.me)
+		// + bugfixed by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+		// - depends on: utf8_encode
+		// * example 1: md5('Kevin van Zonneveld');
+		// * returns 1: '6e658d4bfcb59cc13f96c14450ac40b9'
+		var xl;
+
+		var rotateLeft = function(lValue, iShiftBits) {
+			return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));
+		};
+
+		var addUnsigned = function(lX, lY) {
+			var lX4, lY4, lX8, lY8, lResult;
+			lX8 = (lX & 0x80000000);
+			lY8 = (lY & 0x80000000);
+			lX4 = (lX & 0x40000000);
+			lY4 = (lY & 0x40000000);
+			lResult = (lX & 0x3FFFFFFF) + (lY & 0x3FFFFFFF);
+			if (lX4 & lY4) {
+				return (lResult ^ 0x80000000 ^ lX8 ^ lY8);
+			}
+			if (lX4 | lY4) {
+				if (lResult & 0x40000000) {
+					return (lResult ^ 0xC0000000 ^ lX8 ^ lY8);
+				} else {
+					return (lResult ^ 0x40000000 ^ lX8 ^ lY8);
+				}
+			} else {
+				return (lResult ^ lX8 ^ lY8);
+			}
+		};
+
+		var _F = function(x, y, z) {
+			return (x & y) | ((~x) & z);
+		};
+		var _G = function(x, y, z) {
+			return (x & z) | (y & (~z));
+		};
+		var _H = function(x, y, z) {
+			return (x ^ y ^ z);
+		};
+		var _I = function(x, y, z) {
+			return (y ^ (x | (~z)));
+		};
+
+		var _FF = function(a, b, c, d, x, s, ac) {
+			a = addUnsigned(a, addUnsigned(addUnsigned(_F(b, c, d), x), ac));
+			return addUnsigned(rotateLeft(a, s), b);
+		};
+
+		var _GG = function(a, b, c, d, x, s, ac) {
+			a = addUnsigned(a, addUnsigned(addUnsigned(_G(b, c, d), x), ac));
+			return addUnsigned(rotateLeft(a, s), b);
+		};
+
+		var _HH = function(a, b, c, d, x, s, ac) {
+			a = addUnsigned(a, addUnsigned(addUnsigned(_H(b, c, d), x), ac));
+			return addUnsigned(rotateLeft(a, s), b);
+		};
+
+		var _II = function(a, b, c, d, x, s, ac) {
+			a = addUnsigned(a, addUnsigned(addUnsigned(_I(b, c, d), x), ac));
+			return addUnsigned(rotateLeft(a, s), b);
+		};
+
+		var convertToWordArray = function(str) {
+			var lWordCount;
+			var lMessageLength = str.length;
+			var lNumberOfWords_temp1 = lMessageLength + 8;
+			var lNumberOfWords_temp2 = (lNumberOfWords_temp1 - (lNumberOfWords_temp1 % 64)) / 64;
+			var lNumberOfWords = (lNumberOfWords_temp2 + 1) * 16;
+			var lWordArray = new Array(lNumberOfWords - 1);
+			var lBytePosition = 0;
+			var lByteCount = 0;
+			while (lByteCount < lMessageLength) {
+				lWordCount = (lByteCount - (lByteCount % 4)) / 4;
+				lBytePosition = (lByteCount % 4) * 8;
+				lWordArray[lWordCount] = (lWordArray[lWordCount] | (str
+						.charCodeAt(lByteCount) << lBytePosition));
+				lByteCount++;
+			}
+			lWordCount = (lByteCount - (lByteCount % 4)) / 4;
+			lBytePosition = (lByteCount % 4) * 8;
+			lWordArray[lWordCount] = lWordArray[lWordCount]
+					| (0x80 << lBytePosition);
+			lWordArray[lNumberOfWords - 2] = lMessageLength << 3;
+			lWordArray[lNumberOfWords - 1] = lMessageLength >>> 29;
+			return lWordArray;
+		};
+
+		var wordToHex = function(lValue) {
+			var wordToHexValue = "", wordToHexValue_temp = "", lByte, lCount;
+			for (lCount = 0; lCount <= 3; lCount++) {
+				lByte = (lValue >>> (lCount * 8)) & 255;
+				wordToHexValue_temp = "0" + lByte.toString(16);
+				wordToHexValue = wordToHexValue
+						+ wordToHexValue_temp.substr(
+								wordToHexValue_temp.length - 2, 2);
+			}
+			return wordToHexValue;
+		};
+
+		var x = [], k, AA, BB, CC, DD, a, b, c, d, S11 = 7, S12 = 12, S13 = 17, S14 = 22, S21 = 5, S22 = 9, S23 = 14, S24 = 20, S31 = 4, S32 = 11, S33 = 16, S34 = 23, S41 = 6, S42 = 10, S43 = 15, S44 = 21;
+
+		str = this.utf8_encode(str);
+		x = convertToWordArray(str);
+		a = 0x67452301;
+		b = 0xEFCDAB89;
+		c = 0x98BADCFE;
+		d = 0x10325476;
+
+		xl = x.length;
+		for (k = 0; k < xl; k += 16) {
+			AA = a;
+			BB = b;
+			CC = c;
+			DD = d;
+			a = _FF(a, b, c, d, x[k + 0], S11, 0xD76AA478);
+			d = _FF(d, a, b, c, x[k + 1], S12, 0xE8C7B756);
+			c = _FF(c, d, a, b, x[k + 2], S13, 0x242070DB);
+			b = _FF(b, c, d, a, x[k + 3], S14, 0xC1BDCEEE);
+			a = _FF(a, b, c, d, x[k + 4], S11, 0xF57C0FAF);
+			d = _FF(d, a, b, c, x[k + 5], S12, 0x4787C62A);
+			c = _FF(c, d, a, b, x[k + 6], S13, 0xA8304613);
+			b = _FF(b, c, d, a, x[k + 7], S14, 0xFD469501);
+			a = _FF(a, b, c, d, x[k + 8], S11, 0x698098D8);
+			d = _FF(d, a, b, c, x[k + 9], S12, 0x8B44F7AF);
+			c = _FF(c, d, a, b, x[k + 10], S13, 0xFFFF5BB1);
+			b = _FF(b, c, d, a, x[k + 11], S14, 0x895CD7BE);
+			a = _FF(a, b, c, d, x[k + 12], S11, 0x6B901122);
+			d = _FF(d, a, b, c, x[k + 13], S12, 0xFD987193);
+			c = _FF(c, d, a, b, x[k + 14], S13, 0xA679438E);
+			b = _FF(b, c, d, a, x[k + 15], S14, 0x49B40821);
+			a = _GG(a, b, c, d, x[k + 1], S21, 0xF61E2562);
+			d = _GG(d, a, b, c, x[k + 6], S22, 0xC040B340);
+			c = _GG(c, d, a, b, x[k + 11], S23, 0x265E5A51);
+			b = _GG(b, c, d, a, x[k + 0], S24, 0xE9B6C7AA);
+			a = _GG(a, b, c, d, x[k + 5], S21, 0xD62F105D);
+			d = _GG(d, a, b, c, x[k + 10], S22, 0x2441453);
+			c = _GG(c, d, a, b, x[k + 15], S23, 0xD8A1E681);
+			b = _GG(b, c, d, a, x[k + 4], S24, 0xE7D3FBC8);
+			a = _GG(a, b, c, d, x[k + 9], S21, 0x21E1CDE6);
+			d = _GG(d, a, b, c, x[k + 14], S22, 0xC33707D6);
+			c = _GG(c, d, a, b, x[k + 3], S23, 0xF4D50D87);
+			b = _GG(b, c, d, a, x[k + 8], S24, 0x455A14ED);
+			a = _GG(a, b, c, d, x[k + 13], S21, 0xA9E3E905);
+			d = _GG(d, a, b, c, x[k + 2], S22, 0xFCEFA3F8);
+			c = _GG(c, d, a, b, x[k + 7], S23, 0x676F02D9);
+			b = _GG(b, c, d, a, x[k + 12], S24, 0x8D2A4C8A);
+			a = _HH(a, b, c, d, x[k + 5], S31, 0xFFFA3942);
+			d = _HH(d, a, b, c, x[k + 8], S32, 0x8771F681);
+			c = _HH(c, d, a, b, x[k + 11], S33, 0x6D9D6122);
+			b = _HH(b, c, d, a, x[k + 14], S34, 0xFDE5380C);
+			a = _HH(a, b, c, d, x[k + 1], S31, 0xA4BEEA44);
+			d = _HH(d, a, b, c, x[k + 4], S32, 0x4BDECFA9);
+			c = _HH(c, d, a, b, x[k + 7], S33, 0xF6BB4B60);
+			b = _HH(b, c, d, a, x[k + 10], S34, 0xBEBFBC70);
+			a = _HH(a, b, c, d, x[k + 13], S31, 0x289B7EC6);
+			d = _HH(d, a, b, c, x[k + 0], S32, 0xEAA127FA);
+			c = _HH(c, d, a, b, x[k + 3], S33, 0xD4EF3085);
+			b = _HH(b, c, d, a, x[k + 6], S34, 0x4881D05);
+			a = _HH(a, b, c, d, x[k + 9], S31, 0xD9D4D039);
+			d = _HH(d, a, b, c, x[k + 12], S32, 0xE6DB99E5);
+			c = _HH(c, d, a, b, x[k + 15], S33, 0x1FA27CF8);
+			b = _HH(b, c, d, a, x[k + 2], S34, 0xC4AC5665);
+			a = _II(a, b, c, d, x[k + 0], S41, 0xF4292244);
+			d = _II(d, a, b, c, x[k + 7], S42, 0x432AFF97);
+			c = _II(c, d, a, b, x[k + 14], S43, 0xAB9423A7);
+			b = _II(b, c, d, a, x[k + 5], S44, 0xFC93A039);
+			a = _II(a, b, c, d, x[k + 12], S41, 0x655B59C3);
+			d = _II(d, a, b, c, x[k + 3], S42, 0x8F0CCC92);
+			c = _II(c, d, a, b, x[k + 10], S43, 0xFFEFF47D);
+			b = _II(b, c, d, a, x[k + 1], S44, 0x85845DD1);
+			a = _II(a, b, c, d, x[k + 8], S41, 0x6FA87E4F);
+			d = _II(d, a, b, c, x[k + 15], S42, 0xFE2CE6E0);
+			c = _II(c, d, a, b, x[k + 6], S43, 0xA3014314);
+			b = _II(b, c, d, a, x[k + 13], S44, 0x4E0811A1);
+			a = _II(a, b, c, d, x[k + 4], S41, 0xF7537E82);
+			d = _II(d, a, b, c, x[k + 11], S42, 0xBD3AF235);
+			c = _II(c, d, a, b, x[k + 2], S43, 0x2AD7D2BB);
+			b = _II(b, c, d, a, x[k + 9], S44, 0xEB86D391);
+			a = addUnsigned(a, AA);
+			b = addUnsigned(b, BB);
+			c = addUnsigned(c, CC);
+			d = addUnsigned(d, DD);
+		}
+
+		var temp = wordToHex(a) + wordToHex(b) + wordToHex(c) + wordToHex(d);
+
+		return temp.toLowerCase();
+	};
+
+	this.utf8_encode = function(argString) {
+		// http://kevin.vanzonneveld.net
+		// + original by: Webtoolkit.info (http://www.webtoolkit.info/)
+		// + improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+		// + improved by: sowberry
+		// + tweaked by: Jack
+		// + bugfixed by: Onno Marsman
+		// + improved by: Yves Sucaet
+		// + bugfixed by: Onno Marsman
+		// + bugfixed by: Ulrich
+		// + bugfixed by: Rafal Kukawski
+		// + improved by: kirilloid
+		// * example 1: utf8_encode('Kevin van Zonneveld');
+		// * returns 1: 'Kevin van Zonneveld'
+
+		if (argString === null || typeof argString === "undefined") {
+			return "";
+		}
+
+		var string = (argString + ''); // .replace(/\r\n/g,
+		// "\n").replace(/\r/g, "\n");
+		var utftext = '', start, end, stringl = 0;
+
+		start = end = 0;
+		stringl = string.length;
+		for ( var n = 0; n < stringl; n++) {
+			var c1 = string.charCodeAt(n);
+			var enc = null;
+
+			if (c1 < 128) {
+				end++;
+			} else if (c1 > 127 && c1 < 2048) {
+				enc = String.fromCharCode((c1 >> 6) | 192, (c1 & 63) | 128);
+			} else {
+				enc = String.fromCharCode((c1 >> 12) | 224,
+						((c1 >> 6) & 63) | 128, (c1 & 63) | 128);
+			}
+			if (enc !== null) {
+				if (end > start) {
+					utftext += string.slice(start, end);
+				}
+				utftext += enc;
+				start = end = n + 1;
+			}
+		}
+
+		if (end > start) {
+			utftext += string.slice(start, stringl);
+		}
+
+		return utftext;
+	};
+
+	/**
+	 * 방문자의 Plugin 정보를 추출합니다.
+	 */
+	this.getPluginsInfo = function() {
+
+		var result = "";
+
+		if (this.browser.isMSIE) {
+			var plugin_names = [ "QuickTime", "Flash", "Shockwave",
+					"WindowsMediaPlayer", "Silverlight", "AdobeReader",
+					"RealPlayer" ];
+
+			for ( var i = 0; i < plugin_names.length; i++) {
+
+				var version = PluginDetect.getVersion(plugin_names[i]);
+
+				if (version) {
+					result += plugin_names[i] + ' varsion : ' + version
+							+ ' || ';
+				}
+			}
+		} else {
+			for ( var i = 0; i < window.navigator.plugins.length; i++) {
+				result += window.navigator.plugins[i].description + ' || ';
+			}
+		}
+
+		return result;
+	};
+	
+	this.getUserAgentInfo = function() {
+		return window.navigator.userAgent;
+	};
+
+	this.getMd5UserAgentInfo = function() {
+		return this.md5(this.getUserAgentInfo());
+	};
+
+	this.getScreenInfo = function() {
+		return window.screen;
+	};
+
+	this.getMd5ScreenInfo = function() {
+		return this.md5(this.getScreenInfo());
+	};
+
+	this.getMd5PluginsInfo = function() {
+		return this.md5(this.getPluginsInfo());
+	};
+
+	this.jsonToString = function(json) {
+		var results = [];
+
+		for ( var property in json) {
+
+			var value = json[property];
+
+			if (value)
+				results.push('"' + property.toString() + '":"' + value + '"');
+		}
+
+		return '{' + results.join(', ') + '}';
+	};
+
+	this.jsonArrayToString = function(jsonArray) {
+		var results = [];
+
+		for ( var i = 0; i < jsonArray.length; i++) {
+			results.push(this.jsonToString(jsonArray[i]));
+		}
+
+		return '[' + results.join(', ') + ']';
+	};
+
+	this.addFavorite = function() {
+		var url = document.location.href;
+		var title = document.title;
+
+		if (window.opera && window.print) {
+			var ele = document.createElement('a');
+			ele.setAttribute('href', url);
+			ele.setAttribute('title', title);
+			ele.setAttribute('rel', 'sidebar');
+			ele.click();
+		} else if (document.all) {
+			window.external.AddFavorite(url, title);
+		} else if (window.sidebar) {
+			window.sidebar.addPanel(title, url, "");
+		} else {
+			alert("Ctrl+D 키를 이용하여 즐겨찾기를 추가해 주시기 바랍니다.");
+		}
+	};
+	
+	this.getSelectValue = function(obj) {
+		var value = obj.value;
+		
+		if (value == '')
+		{
+			for(var i = 0 ; i < obj.options.length ; i++)
+			{
+				if(obj.options[i].selected)
+				{
+					value = obj.options[i].value;
+					break;    					
+				}
+			}
+		}
+		
+		return value;
+	};
+
+	this.addClassToElem = function(elem, val) {
+		var rspaces = /\s+/;
+		var classNames = (val || "").split(rspaces);
+		var className = " " + elem.className + " ",
+		setClass = elem.className;
+		for (var c = 0, cl = classNames.length; c < cl; c++) {
+			if (className.indexOf(" " + classNames[c] + " ") < 0 ) {
+				setClass += " " + classNames[c];
+			}
+		}
+		elem.className = setClass.replace(/^\s+|\s+$/g,'');
+	};
+
+	this.removeClassFromElem = function(elem, val) {
+		var rspaces = /\s+/;
+		var rclass = /[\n\t]/g
+		var classNames = (val || "").split(rspaces);
+		var className = (" " + elem.className + " ").replace(rclass, " ");
+		for ( var c = 0, cl = classNames.length; c < cl; c++ ) {
+			className = className.replace(" " + classNames[c] + " ", " ");
+		}
+		elem.className = className.replace(/^\s+|\s+$/g,'');
+	};
+
+	this.elemHasClass = function(elem, val) {
+		return ((' ' + elem.className + ' ').indexOf(' ' + val + ' ') > -1)
+	}
+};
+SeeToc.util = new SeeToc.Util;
+var SEETOC_DIALOG_ALIGN_LEFT = 'LEFT';
+var SEETOC_DIALOG_ALIGN_RIGHT = 'RIGHT';
+var SEETOC_DIALOG_ALIGN_TOP = 'TOP';
+var SEETOC_DIALOG_ALIGN_BOTTOM = 'BOTTOM';
+/*
+ * Dialog DOM 예시
+ * <div id="__ct_dialog_wrapper_ADD2XRFM">
+ *   <iframe></iframe>
+ * </div>
+ *
+ * 
+ * dialog 객체 spec
+ * dialog = {
+ *  id: 'string',       // wrapper div id
+ *  wrapper: object,    // iframe을 감싸는 div wrapper
+ *  iframe: object,     // iframe dom
+ *  window: object,     // iframe 페이지의 window 객체
+ *  document: object,   // iframe 페이지의 document 객체
+ *  width: number,      // dialog 폭 (단위 px)
+ *  height: number,     // dialog 높이 (단위 px)
+ *  posX: number,       // dialog x축 위치 (단위 px)
+ *  posY: number,       // dialog y축 위치 (단위 px)
+ *  show: function (),  // dialog를 화면에 나타나게 하는 함수
+ *  hide: function (),  // dialog를 화면에서 사라지게 하는 함수
+ *  resize: function (width, height)    // dialog의 크기를 입력한 width, height로 변경
+ * }
+ * 
+ * 
+ * options 객체 spec
+ * options = {
+ *  prefix: 'string',   // dialog의 id를 생성할때 사용되는 prefix
+ *  html: 'string',     // iframe의 body 안에 들어갈 html tag string
+ *  css: 'string',      // iframe에 삽입될 css 파일의 URL
+ *  width: number,      // dialog 폭 (단위 px)
+ *  height: number,     // dialog 높이 (단위 px)
+ *  posX: number,       // dialog x축 위치 (단위 px)
+ *  posY: number,       // dialog y축 위치 (단위 px)
+ *  horizontalAlign: 'string',      // dialog 수평 정렬 : 'LEFT'(좌측 정렬), 'RIGHT'(우측 정렬)
+ *                                  // 기본값은 'LEFT' 이다.
+ *  verticalAlign: 'string',        // dialog 수직 정렬 : 'TOP'(상단 정렬), 'BOTTOM'(하단 정렬)
+ *                                  // 기본값은 'TOP' 이다.
+ *  draggableClassName: 'string',   // 해당 className의 dom을 클릭하여 마우스를 움직일 경우 dialog 위치를 이동시킬 수 있다.
+ *                                  // 기본값은 __ct_draggable_elem 이다.
+ *  callback: {
+ *   startDrag: function (),        // dialog의 startDrag 함수가 호출될 경우 해당 callback 함수가 호출된다.
+ *   stopDrag: function ()          // dialog의 stopDrag 함수가 호출될 경우 해당 callback 함수가 호출된다.
+ *  }
+ * }
+ *
+ */
+SeeToc.Dialog = function(options) {
+    var pntr = false;
+    var child = false;
+    var ResizeInfo = false;
+    
+    function createIframe() {
+        var iframe = SeeToc.util.createElement('iframe', {
+            src: 'javascript:false;',
+            frameBorder: '0',
+            width: '100%',
+            height: '100%',
+            allowTransparency: 'true',
+            scrolling: 'no',
+            style: 'background-color: transparent; overflow:hidden;'
+        });
+        
+        pntr.wrapper.appendChild(iframe);
+        pntr.iframe = iframe;
+        
+        var iWindow = iframe.contentWindow;
+        var iDocument = iWindow.document;
+
+        if ( SeeToc.util.browser.isMSIE6 ||
+                SeeToc.util.browser.isMSIE7 ||
+                SeeToc.util.browser.isQuirkMode ||
+                SeeToc.util.browser.oldDocument ) {
+            iDocument.write('<!doctype html>' + '<html><head><style>html,body{height:100%;width:100%;background:none;} *{border:0;padding:0;margin:0;}</style></head><body></body></html>');
+        }
+        else {
+            iDocument.write('<!doctype html>' + '<html><head><style>html,body{height:100%;width:100%;} *{border:0;padding:0;margin:0;box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box}</style></head><body></body></html>');
+        }
+        iDocument.close();
+        
+        pntr.window = iWindow;
+        pntr.document = iDocument;
+    }
+        
+    function createWrapper(options) {
+        var prefix = options.prefix || '__ct_dialog_wrapper';
+        var dialogId = prefix + '_' + SeeToc.util.generateRandomString();
+        this.id = dialogId;
+
+        var inlineStyle = [
+            'position:fixed !important;',
+            'position:absolute;',
+            'overflow:hidden;',
+            'width:'+options.width+'px;',
+            'height:'+options.height+'px;'//,
+            //'background-color:transparent;'
+        ];
+        
+        // 수평 정렬 방식에 따른 위치 설정
+        if (options.horizontalAlign === SEETOC_DIALOG_ALIGN_LEFT) {
+            inlineStyle.push('left:'+options.posX+'px;');
+        } else if (options.horizontalAlign === SEETOC_DIALOG_ALIGN_RIGHT) {
+            inlineStyle.push('right:'+options.posX+'px;');
+        }
+        // 수직 정렬 방식에 따른 위치 설정
+        if (options.verticalAlign === SEETOC_DIALOG_ALIGN_TOP) {
+            inlineStyle.push('top:'+options.posY+'px;');
+        } else if (options.verticalAlign === SEETOC_DIALOG_ALIGN_BOTTOM) {
+            inlineStyle.push('bottom:'+options.posY+'px;');
+        }
+        
+        if (!SeeToc.config.getMobilePageFlag()) {
+            if(options.prefix == '__ct_chat_messenger') {
+                if( SeeToc.util.browser.isMSIE6) {
+                    inlineStyle.push('border: 3px #cacaca solid;');	
+                } else {
+                    inlineStyle.push('border: 3px transparent solid;');
+                }
+            }
+        }
+
+        var wrapper = SeeToc.util.createElement('div', {
+            id: dialogId,
+            style: inlineStyle.join('')
+        });
+        
+        pntr.wrapper = wrapper;
+        pntr.width = options.width;
+        pntr.height = options.height;
+        
+        wrapper.style.zIndex = 99999;
+        
+        // 정렬 방식에 따라 dialog 위치 보정
+        if (options.horizontalAlign === SEETOC_DIALOG_ALIGN_LEFT) {
+            pntr.posX = Number(options.posX);
+        } else if (options.horizontalAlign === SEETOC_DIALOG_ALIGN_RIGHT) {
+            pntr.posX = SeeToc.util.getViewportWidth() - pntr.width - Number(options.posX);
+        }
+        if (options.verticalAlign === SEETOC_DIALOG_ALIGN_TOP) {
+    		pntr.posY = Number(options.posY);
+        } else if (options.verticalAlign === SEETOC_DIALOG_ALIGN_BOTTOM) {
+            pntr.posY = SeeToc.util.getViewportHeight() - pntr.height - Number(options.posY);
+        }
+
+        document.body.appendChild(pntr.wrapper);
+    }
+    
+    var iMouseStartX, iMouseStartY;
+    
+    function startDrag(event) {
+    	
+        if (!event) event = pntr.window.event;
+        
+        iMouseStartX = event.clientX;
+        iMouseStartY = event.clientY;
+
+        releaseWindowMouseResizeEvent();
+        
+        pntr.document.onmousemove = innerMouseMove;
+        document.onmousemove = outerMouseMove;
+        pntr.document.onmouseup = document.onmouseup = stopDrag;
+        
+        pntr.document.onselectstart = function() {
+            return false;
+        }
+
+        if (options.callback && options.callback.startDrag) {
+            options.callback.startDrag();
+        }
+    }
+    
+    function stopDrag(event) {
+    	
+    	bindWindowMouseResizeEvent();
+    	bindActionWindowMouseResizeEvent(options.mouseResizeAble);
+    	
+        pntr.document.onselectstart = null;
+        
+        if (options.callback && options.callback.stopDrag) {
+            options.callback.stopDrag();
+        }
+    }
+    
+    function innerMouseMove(event) {
+        if (!event) event = window.event;
+        if (!event) event = pntr.window.event;
+
+        var iMouseMovedX = event.clientX - iMouseStartX;
+        var iMouseMovedY = event.clientY - iMouseStartY;
+
+        var wrapper = pntr.wrapper;
+        
+        pntr.posX = adjustDialogPositionX(pntr.posX + iMouseMovedX);
+        pntr.posY = adjustDialogPositionY(pntr.posY + iMouseMovedY);
+
+        resetDialogPosition();
+    }
+    
+    function outerMouseMove(event) {
+
+        if (!event) event = window.event;
+        if (!event) event = pntr.window.event;
+        
+        var oMouseMovedX = event.clientX - iMouseStartX;
+        var oMouseMovedY = event.clientY - iMouseStartY;
+                        
+        var wrapper = pntr.wrapper;
+        pntr.posX = adjustDialogPositionX(oMouseMovedX);
+        pntr.posY = adjustDialogPositionY(oMouseMovedY);
+
+        resetDialogPosition();
+    }
+    
+    function adjustDialogPositionX(x) {
+        var dialogWidth = Number(pntr.wrapper.style.width.substring(0, pntr.wrapper.style.width.indexOf('px')));
+        var viewWidth = SeeToc.util.getViewportWidth();
+
+        var minX = 0;
+        var maxX = viewWidth - dialogWidth;
+
+        if(isNaN(x))
+        	x = 0;
+        
+        return Math.min(Math.max(x, minX), maxX);
+    }
+    
+    function adjustDialogPositionY(y) {
+        var dialogHeight = Number(pntr.wrapper.style.height.substring(0, pntr.wrapper.style.height.indexOf('px')));
+        var viewHeight = SeeToc.util.getViewportHeight();
+
+        var minY = 0;
+        var maxY = viewHeight - dialogHeight;
+
+        if(isNaN(y))
+        	y = 0;
+
+        return Math.min(Math.max(y, minY), maxY);;
+    }
+    
+    function setDialogHtml(html) {
+        pntr.document.body.innerHTML = html;
+    };
+    
+    function resetDialogPosition() {
+    	
+        var posX = pntr.posX,
+            posY = pntr.posY,
+            dialogWidth = pntr.width,
+            dialogHeight = pntr.height,
+            viewWidth = SeeToc.util.getViewportWidth(),
+            viewHeight = SeeToc.util.getViewportHeight(),
+            correctX = 0,
+            correctY = 0,
+            wrapper = pntr.wrapper;
+      
+        if ( 
+        		SeeToc.util.browser.isMSIE6 ||
+        		SeeToc.util.browser.isMSIE7 ||
+                SeeToc.util.browser.isQuirkMode ||
+				SeeToc.util.browser.oldDocument
+           ) 
+        {
+            correctX = SeeToc.util.getHorizontalScroll();
+            correctY = SeeToc.util.getVerticalScroll();
+        }
+        
+        if (options.horizontalAlign === SEETOC_DIALOG_ALIGN_LEFT) 
+        {
+            wrapper.style.left = Math.max(0, posX) + 'px';
+        } 
+        else if (options.horizontalAlign === SEETOC_DIALOG_ALIGN_RIGHT) 
+        {
+        	if(options.mouseResizeAble)
+        	{
+        		wrapper.style.left = Math.max(0, posX) + 'px';
+        	}
+        	else
+    		{
+        		wrapper.style.left = Math.max(0, ( viewWidth - ( posX + dialogWidth ) + correctX)) + 'px';	
+    		}
+        }
+        
+        wrapper.style.top = Math.max(0, posY + correctY) + 'px'; 
+    }
+    
+    function addStyleSheet(url) {
+        if (typeof url == 'undefined' || url == null) {
+            return false;
+        }
+        var link = SeeToc.util.createElement('link', {
+            type: 'text/css',
+            rel: 'stylesheet',
+            href: url
+        }, pntr.document);
+        var head = pntr.document.getElementsByTagName('head')[0];
+        head.appendChild(link);
+    }
+
+    this.show = function () {
+        pntr.wrapper.style.display = 'block';
+    };
+
+    this.hide = function () {
+        pntr.wrapper.style.display = 'none';
+    };
+
+    this.resize = function (width, height) {
+        pntr.width = width;
+        pntr.height = height;
+
+        var wrapper = pntr.wrapper;
+        
+        wrapper.style.width = width + 'px';
+        wrapper.style.height = height + 'px';
+        
+        var iframe = pntr.iframe;
+        
+        if( SeeToc.util.browser.isQuirkMode || SeeToc.util.browser.isMSIE6 ){
+        	width -= SeeToc.util.pxPlus(wrapper.style.borderLeftWidth, wrapper.style.borderRightWidth);
+        	height -= SeeToc.util.pxPlus(wrapper.style.borderTopWidth, wrapper.style.borderBottomWidth);
+        }
+        
+        iframe.width = width + 'px';
+        iframe.height = height + 'px';
+    };
+
+    this.move = function (posX, posY) {
+        pntr.posX = posX;
+        pntr.posY = posY;
+        
+        resetDialogPosition();
+    };
+
+    this.initialize = function(options) {
+        if (!pntr) {
+            pntr = this;
+        }
+
+        if (!options.horizontalAlign) {
+            options.horizontalAlign = SEETOC_DIALOG_ALIGN_LEFT;
+        }
+        if (!options.verticalAlign) {
+            options.verticalAlign = SEETOC_DIALOG_ALIGN_TOP;
+        }
+
+        createWrapper(options);
+        createIframe();
+        setDialogHtml(options.html);
+        addStyleSheet(options.css);
+
+        var draggableClassName1 = options.draggableClassName || '__ct_draggable_elem';
+        var draggableClassName2 = options.draggableClassName || '__sms_draggable_elem';
+        
+        var draggable1 = SeeToc.util.getElementsByClassName(draggableClassName1, pntr.document)[0];
+        var draggable2 = SeeToc.util.getElementsByClassName(draggableClassName2, pntr.document)[0];
+        
+        if (draggable1 != null) {
+        	draggable1.onmousedown = startDrag;
+        }
+        
+        if (draggable2 != null) {
+        	draggable2.onmousedown = startDrag;
+        }
+        
+        // Mobile 페이지의 Resize여부 또는 마우스를 통한 Resize 여부를 확인한다
+        // mouseResizeAble false라 하여도 mousemove event는 달아야 한다.
+        if (SeeToc.config.getMobilePageFlag()) {
+            if (document.addEventListener)
+            {
+                window.addEventListener("touchmove", resetDialogPosition, false);
+            }
+            else 
+            {
+                window.attachEvent("ontoucnmove", resetDialogPosition);
+            }
+            bindMobileWindowResizeEvent();
+        } else if(options.type == SEETOC_CHAT_TYPE_LAYER && options.mouseResizeAble) {
+        	bindActionWindowMouseResizeEvent(options.mouseResizeAble);
+        }
+        
+        bindWindowMouseResizeEvent();
+        
+        if ( 
+        		SeeToc.util.browser.isMSIE6 ||
+                SeeToc.util.browser.isLegacyMSIE7 ||
+                SeeToc.util.browser.isQuirkMode
+           ) 
+        {
+            if (document.addEventListener)
+            {
+                window.addEventListener("scroll", resetDialogPosition, false);
+            }
+            else 
+            {
+                window.attachEvent("onscroll", resetDialogPosition);
+            }
+        }
+    };
+
+    function bindMobileWindowResizeEvent() {
+        if (document.addEventListener) {
+            window.addEventListener("resize", windowResizeHandler, false);
+        } else {
+            window.attachEvent("onresize", windowResizeHandler);
+        }
+    }
+
+    function bindWindowMouseResizeEvent() {
+    	document.onmousemove = windowMouseMoveHandler;
+    	document.onmousedown = windowMouseDownHandler;
+    	document.onmouseup = windowMouseUpHandler;
+    }
+
+    function bindActionWindowMouseResizeEvent(mouseResizeAble) {
+		pntr.document.onmousedown = windowMouseDownHandler;
+		pntr.document.onmouseup = windowMouseUpHandler;
+    	pntr.document.onmousemove = windowMouseMoveHandler;
+    }
+
+    function releaseWindowMouseResizeEvent() {
+
+    	pntr.setResizeInfo(false);
+
+    	document.onmouseup = document.onmousedown = document.onmousemove = null;
+    	pntr.document.onmousemove = pntr.document.onmousedown = pntr.document.onmouseup = null;
+    }
+
+    /**
+     * 마우스의 이동
+     * @param el
+     * @returns
+     */
+    function getCursorDirection(el, _event) {
+
+        var posX, posY, offset = 6, direction = "";
+    	var event = (window.event) ? window.event : pntr.window.event;
+    	event = (event) ? event : _event;
+
+    	posX = (event.offsetX) ? event.offsetX : event.clientX;
+		posY = (event.offsetY) ? event.offsetY : event.clientY;
+
+        if (posY<offset) 
+        	direction += "n";
+        else if (posY > el.offsetHeight-offset) 
+        	direction += "s";
+        if (posX<offset) 
+        	direction += "w";
+        else if (posX > el.offsetWidth-offset) 
+        	direction += "e";
+        
+        return direction;
+    }
+    
+    function getElement(_event) {
+    	
+    	var el = (_event.srcElement) ? _event.srcElement : _event.target;  
+    	var temp = el;
+        
+        while ((temp != null) && (temp.tagName != "BODY")) {
+        	try{
+	            if (typeof(eval('temp.id')) == 'string' && eval('temp.id').indexOf('__ct_chat_messenger') > -1) {
+	                el = temp;
+	                return el;
+	            }
+        	}
+        	catch(e){ }
+        	
+            temp = temp.parentElement;
+        }
+
+        return el;
+    }
+
+    function windowResizeHandler(_event) {
+        pntr.resize(SeeToc.util.getViewportWidth(), pntr.height);
+        pntr.move(0, SeeToc.util.getViewportHeight() - pntr.height);
+    }
+
+    
+    function windowMouseMoveHandler(_event) {
+
+    	var event = (window.event) ? window.event : pntr.window.event;
+    	event = (event) ? event : _event;
+    	var el = getElement(event);
+    	
+    	// 마우스 클릭전 커서의 형태를 결정한다.
+        if (el && el.id && typeof(el.id) == 'string' && el.id.indexOf("__ct_chat_messenger") > -1 ) {
+        	var cusor_style = getCursorDirection(el, event);
+            if (cusor_style == "") cusor_style = "default";
+            else cusor_style += "-resize";
+            pntr.wrapper.style.cursor = cusor_style;
+        }
+        
+        // 마우스 드레그시 사이즈와 위치를 조절한다.
+        //if(pntr.getResizeInfo() && pntr.getResizeInfo().el.wrapper.id.indexOf("__ct_chat_messenger") > -1) {
+        if(pntr.getResizeInfo() && pntr.getChild()) {
+
+        	var isWindow = (window.event != null) ? true : false;
+        	
+        	if(!isWindow)
+        	{
+        		if(event.clientX * event.clientY > pntr.height * pntr.width)
+        			isWindow = true;
+        	}
+        	
+            if (pntr.getResizeInfo().direction.indexOf("e") != -1)
+        	{
+            	if(isWindow && pntr.posX + pntr.width <= event.clientX)
+            		pntr.getChild().resize(event.clientX - pntr.posX, pntr.height);
+            	
+            	if(!isWindow && pntr.width > event.clientX)
+            		pntr.getChild().resize(event.clientX, pntr.height);
+            	
+            	pntr.move(pntr.posX, pntr.posY);
+        	}
+        
+            if (pntr.getResizeInfo().direction.indexOf("s") != -1){
+            	if(isWindow && pntr.posY + pntr.height <= event.clientY)
+            		pntr.getChild().resize(pntr.width, event.clientY - pntr.posY);
+            	
+            	if(!isWindow && pntr.height > event.clientY)
+            		pntr.getChild().resize(pntr.width, event.clientY);
+            }
+
+            if (pntr.getResizeInfo().direction.indexOf("w") != -1) {
+            	
+            	if(isWindow && pntr.posX >= event.clientX)
+            	{
+            		pntr.getChild().resize(pntr.width - event.clientX + pntr.posX, pntr.height);
+            		pntr.move(event.clientX, pntr.posY);
+            	}
+            	
+            	if(!isWindow && pntr.width > event.clientX)
+        		{
+            		pntr.getChild().resize(pntr.width - event.clientX, pntr.height);
+            		pntr.move(event.clientX + pntr.posX, pntr.posY);
+        		}
+            }
+            if (pntr.getResizeInfo().direction.indexOf("n") != -1) {
+            	if(isWindow)
+            	{
+            		pntr.getChild().resize(pntr.width, pntr.height - event.clientY + pntr.posY);
+            		pntr.move(pntr.posX, event.clientY);
+            	}
+            	else
+        		{
+            		pntr.getChild().resize(pntr.width, pntr.height - event.clientY);
+            		pntr.move(pntr.posX, event.clientY + pntr.posY);
+        		}
+            }
+        }
+    }
+    
+    function windowMouseUpHandler() {
+    	pntr.setResizeInfo(false);
+    }
+    
+    /**
+     * 마우스 클릭시 위치정보 기억
+     */
+    function windowMouseDownHandler(_event) {
+
+    	var event = (window.event) ? window.event : pntr.window.event;
+    	event = (event) ? event : _event;
+    	
+    	var el = getElement(event);
+    	
+        if (el == null || typeof(el.id) != 'string' || el.id.indexOf("__ct_chat_messenger") == -1) {
+        	pntr.setResizeInfo(false);
+            return;
+        }        
+
+        var direction = getCursorDirection(el, event);
+        if (direction == "") return;
+
+        var _resizeInfo = new mouseResizeInfo();
+            
+        _resizeInfo.el = el;
+        _resizeInfo.direction = direction;
+        _resizeInfo.grabx = event.clientX;
+        _resizeInfo.graby = event.clientY;
+        _resizeInfo.width = el.offsetWidth;
+        _resizeInfo.height = el.offsetHeight;
+        _resizeInfo.left = el.offsetLeft;
+        _resizeInfo.top = el.offsetTop;
+
+        pntr.setResizeInfo(_resizeInfo);
+    }
+    
+    this.setChild = function (_child)
+    {
+    	this.child = _child;
+    };
+    
+    this.getChild = function ()
+    {
+    	return this.child;
+    };
+    
+    this.setResizeInfo = function(_resizeInfo){
+    	this.resizeInfo = _resizeInfo;
+    }
+    
+    this.getResizeInfo = function(){
+    	return this.resizeInfo;
+    }
+    
+    /**
+     * 마우스 드레그를 이용한 사이즈 변동시 마우스 클릭 시점의 위치정보 모델
+     * @returns
+     */
+    function mouseResizeInfo() {
+        this.el    = null; 
+        this.direction  = "";   
+        this.grabx = null;   
+        this.graby = null;
+        this.width = null;
+        this.height = null;
+        this.left = null;
+        this.top = null;
+    }
+    
+    this.initialize(options);
+};
+
+/**
+ * 모니터링 서버로 전송할 이벤트를 정의하는 클래스이다.
+ * Event를 생성할때 최대 4개의 파라미터를 전달 받는다.
+ * type은 이벤트의 유형을 결정하고, common은 공통 데이터, option은 사용자가 지정한 속성들, visitor는 방문자 정보를 나타낸다.
+ * @param {String} type, {Object} common, {Object} option, {Object} visitor
+ */
+SeeToc.Event = function (type, common, option, visitor) {
+    this.type = type || '';
+    this.common = common || {};
+    this.option = option || {};
+    this.visitor = visitor || {};
+    
+    // constructor
+    this.option['type'] = this.type;
+    
+    function parameterize(k, v) {
+        return "&" + encodeURIComponent(k) + '=' + encodeURIComponent((v==null)?'':v);
+    }
+    
+    function serialize (k, v, d) {
+        if (typeof(v) == 'string' || typeof(v) == 'number') {
+            return parameterize(d+'_'+k, v);
+        }
+        if (v instanceof Array) {
+            var s = '';
+            for (var i=0; i<v.length; i++) {
+                s += serialize(k+'['+i+']', v[i], d);
+            }
+            return s;
+        }
+        var s = '';
+        for (var itemKey in v) {
+            s += serialize(k+'['+itemKey+']', v[itemKey], d);
+        }
+        return s;
+    }
+    
+    this.getEventParameter = function() {
+    	 var buffer = [];
+       
+	     for (var key in this.common) {
+	         buffer.push(parameterize(key, this.common[key]));
+	     }
+	   
+	     for (var key in this.option) {
+	         buffer.push(serialize(key, this.option[key], 'e'));
+	     }
+	   
+	     for (var key in this.visitor) {
+	         buffer.push(serialize(key, this.visitor[key], 'v'));
+	     }
+	     
+	     return buffer.join('');
+    };
+    
+};
+SeeToc.Config = function() {
+	var sid;
+	var domainName = null;
+	var domain = window.location.hostname;
+	var cookiePath = '/';
+	var mode = null;
+	var mobilePageFlag = false;
+
+	var monitorServerURL = SEETOC_MONITOR_SERVER_URL;
+	var monitorServerSecureURL = SEETOC_MONITOR_SERVER_SECURE_URL;
+	var staticServerURL = SEETOC_STATIC_SERVER_URL;
+	var staticServerSecureURL = SEETOC_STATIC_SERVER_SECURE_URL;
+	var monitorServerDomain = SEETOC_MONITOR_SERVER_DOMAIN;
+	var monitorActiveConnectMode = SEETOC_MONITOR_ACTIVE_CONNECT_MODE;
+	var intervalID = -1;
+	var endTime = 0;
+	var pingInterval = SEETOC_PING_INTERVAL_MIN_TERM;
+	var readyCookieModules = new Array();
+
+	var visitor = {};
+
+	this.getServiceId = function() {
+		return sid;
+	};
+
+	this.setServiceId = function(_sid) {
+		sid = _sid;
+	};
+	
+	this.getDomainName = function() {
+	    return domainName;
+	}
+	
+	this.attachDomainName = function(_domainName) {
+		if(domainName == null)
+			domainName = new Array();
+		
+	    domainName.push(_domainName);
+	}
+	
+	this.getDomain = function() {
+		if (domain.match(/[ㄱ-힣]/g)) {
+			if (typeof punycode !== 'object')
+				alert("한글도메인 라이브러리가 설치되어 있지 않습니다. SeeToc 고객상담실에 문의 바랍니다.");
+
+			return punycode.ToASCII(domain);
+		}
+
+		return domain;
+	};
+	this.setDomain = function(_domain) {
+		domain = _domain;
+	};
+	this.getCookiePath = function() {
+		return cookiePath;
+	};
+	this.setCookiePath = function(_cookiePath) {
+		cookiePath = _cookiePath;
+	};
+	this.setMode = function(_mode) {
+		mode = _mode;
+	};
+	this.getMode = function() {
+		return mode;
+	};
+	this.setMobilePageFlag = function(_mobilePageFlag) {
+		mobilePageFlag = _mobilePageFlag;
+	}
+	this.getMobilePageFlag = function() {
+		return mobilePageFlag;
+	}
+
+	var PCID_COOKIE_NAME = 'WL_PCID';
+
+	/**
+	 * PCID를 구합니다. 결과는 항상 존재합니다.
+	 */
+	this.getPcId = function() {
+
+		var pcid = SeeToc.cookie.getCookie(PCID_COOKIE_NAME);
+
+		if (pcid == null) {
+			if (this.isPrivate()) {
+				this.setMode(SeeToc.ENUM.MODE.PRIVATE);
+			} else {
+				this.setMode(SeeToc.ENUM.MODE.DELETE_COOKIE);
+			}
+		}
+		else
+		{
+			if (this.isPrivate()) {
+				this.setMode(SeeToc.ENUM.MODE.PRIVATE);
+			}
+		}
+
+		return pcid;
+	};
+
+	/**
+	 * PCID를 설정합니다.
+	 */
+	this.setPcId = function(pcid) {
+		SeeToc.cookie.setPersistentCookie(PCID_COOKIE_NAME, pcid, {
+			domain : this.getDomain(),
+			path : this.getCookiePath()
+		});
+	};
+
+	/**
+	 * PCID를 신규로 생성합니다.
+	 * 
+	 * @returns {String}
+	 */
+	function generatePcId() {
+
+		var result = "";
+
+		if (typeof window.crypto != 'undefined'
+				&& typeof window.crypto.getRandomValues != 'undefined') {
+			var buf = new Uint16Array(8);
+			window.crypto.getRandomValues(buf);
+			var S4 = function(num) {
+				var ret = num.toString(16);
+				while (ret.length < 4) {
+					ret = "0" + ret;
+				}
+				return ret;
+			};
+			result = (S4(buf[0]) + S4(buf[1]) + "-" + S4(buf[2]) + "-"
+					+ S4(buf[3]) + "-" + S4(buf[4]) + "-" + S4(buf[5])
+					+ S4(buf[6]) + S4(buf[7]));
+		} else {
+			result = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
+					function(c) {
+						var r = Math.random() * 16 | 0, v = c == 'x' ? r
+								: (r & 0x3 | 0x8);
+						return v.toString(16);
+					});
+		}
+
+		return result + '-' + new Date().getTime();
+	}
+
+	var SESSIONID_COOKIE_NAME = 'JSESSIONID';
+
+	this.getSessionId = function() {
+		var ssid = SeeToc.cookie.getCookie(SESSIONID_COOKIE_NAME, {
+			domain : this.getDomain(),
+			path : this.getCookiePath()
+		});
+		return ssid;
+	};
+
+	this.setSessionId = function(ssid) {
+		SeeToc.cookie.setCookie(SESSIONID_COOKIE_NAME, ssid, {
+			domain : this.getDomain(),
+			path : this.getCookiePath()
+		});
+	};
+
+	this.addVisitorProperty = function(key, value) {
+		visitor[key] = value;
+	};
+
+	this.getVisitor = function(key) {
+		if (typeof key == 'undefined') {
+			return visitor;
+		}
+		return visitor[key];
+	};
+
+	this.getMonitorServerURL = function() {
+		return this.getMonitorActiveConnectMode() ? 'http://'
+				+ this.getServiceId() + '.' + this.getMonitorServerDomain()
+				: monitorServerURL;
+	};
+	this.setMonitorServerURL = function(url) {
+		monitorServerURL = url;
+	};
+	this.getMonitorServerSecureURL = function() {
+		return this.getMonitorActiveConnectMode() ? 'https://'
+				+ this.getServiceId() + '.' + this.getMonitorServerDomain()
+				: monitorServerSecureURL;
+	};
+	this.setMonitorServerSecureURL = function(url) {
+		monitorServerSecureURL = url;
+	};
+	this.getStaticServerURL = function() {
+		return staticServerURL;
+	};
+	this.setStaticServerURL = function(url) {
+		staticServerURL = url;
+	};
+	this.getStaticServerSecureURL = function() {
+		return staticServerSecureURL;
+	};
+	this.setStaticServerSecureURL = function(url) {
+		staticServerSecureURL = url;
+	};
+	this.getMonitorServerDomain = function() {
+		return monitorServerDomain;
+	};
+	this.setMonitorServerDomain = function(val) {
+		monitorServerDomain = val;
+	};
+	this.getMonitorActiveConnectMode = function() {
+		return monitorActiveConnectMode;
+
+	};
+	this.setMonitorActiveConnectMode = function(val) {
+		monitorActiveConnectMode = val;
+	};
+	this.setIntervalID = function(val) {
+		intervalID = val;
+	};
+	this.getIntervalID = function() {
+		return intervalID;
+	};
+	this.getEndTime = function() {
+		return endTime;
+	};
+
+	this.setEndTime = function(val) {
+		endTime = val;
+	};
+
+	/**
+	 * InPrivate 상태 여부를 판별하여 결과를 반환한다.
+	 */
+	this.isPrivate = function() {
+		return !SeeToc.webCookie.isUse();
+	};
+
+	/**
+	 * Cookie를 사용할 준비완료 여부
+	 */
+	this.isReadyCookie = function() {
+		
+		var isReady = true;
+		
+		for(var i = 0 ; i < readyCookieModules.length ; i++)
+		{
+			if(!readyCookieModules[i].isInitialized())
+			{
+				isReady = false;
+			}
+		}
+		
+		return isReady;
+	};
+	
+	this.addReadyCookieModule = function(module){
+		readyCookieModules.push(module);
+	};
+
+	this.getReadyCookieModules = function(){
+		return readyCookieModules;
+	};
+
+	this.setPingInterval = function(val) {
+		pingInterval = val;
+	};
+	this.getPingInterval = function() {
+		return pingInterval;
+	};
+	this.getStaticPath = function(){
+	    if (document.location.protocol == 'https:') {
+	        return this.getStaticServerSecureURL();
+	    } else {
+	    	return this.getStaticServerURL();
+	    }
+	};
+};
+SeeToc.config = new SeeToc.Config;
+/**
+ * WebStorage를 관리하는 클래스이다.
+ */
+SeeToc.WebStorageCookie = function() {
+	/**
+	 * 초기화
+	 */
+	this.init = function() {
+	};
+
+	/**
+	 * 사용가능 여부
+	 */
+	this.isUse = function() {
+		var key = 'seetoc';
+		var value = 'devTeam2';
+		var isEnabled = true;
+
+		if (typeof localStorage != "undefined") {
+			try {
+				localStorage.setItem(key, value);
+				var getValue = localStorage.getItem(key);
+
+				if (getValue != value) {
+					isEnabled = false;
+				}
+			} catch (Storage_ERR) {
+				isEnabled = false;
+			}
+		} else {
+			isEnabled = false;
+		}
+
+		return isEnabled;
+	};
+
+	/**
+	 * 해당 key의 쿠키값을 가져온다.
+	 * 
+	 * @param {String}
+	 *            key
+	 */
+	this.getCookie = function(key) {
+		var cookie = null;
+
+		if (window.sessionStorage.getItem(key)) {
+			cookie = window.sessionStorage.getItem(key);
+		} else if (window.localStorage.getItem(key)) {
+			cookie = window.localStorage.getItem(key);
+		} else {
+			return null;
+		}
+
+		return cookie;
+	};
+
+	/**
+	 * 해당 key에 value 값의 쿠키를 생성한다. options에서 expired time, path, domain을 설정할 수
+	 * 있다.
+	 * 
+	 * @param {String}
+	 *            key, {String} value, {String} options
+	 */
+	this.setCookie = function(key, value, options) {
+		window.sessionStorage.setItem(key, value);
+	};
+
+	/**
+	 * 해당 key에 value 값의 영구 쿠키를 생성한다. (실제로는 expired time을 충분히 긴 시간으로 지정하는것으로
+	 * 영구적으로 지속되는것 같은 효과를 준다.) options에서 path, domain을 설정할 수 있다.
+	 * 
+	 * @param {String}
+	 *            key, {String} value, {String} options
+	 */
+	this.setPersistentCookie = function(key, value, options) {
+		window.localStorage.setItem(key, value);
+	};
+
+	/**
+	 * 해당 key의 쿠키값을 삭제한다. options에 path, domain을 설정하여 저장할때 지정한 path와 domain이
+	 * 일치하는 쿠키를 삭제한다.
+	 * 
+	 * @param {String}
+	 *            key, {Object} options
+	 */
+	this.removeCookie = function(key, options) {
+		window.localStorage.removeItem(key);
+		window.sessionStorage.removeItem(key);
+	};
+};
+SeeToc.webStorageCookie = new SeeToc.WebStorageCookie;
+/**
+ * 브라우저 쿠키를 관리하는 클래스이다.
+ */
+SeeToc.WebCookie = function() {
+
+	/**
+	 * 초기화
+	 */
+	this.init = function() {
+	};
+
+	/**
+	 * 사용가능 여부
+	 */
+	this.isUse = function() {
+		return navigator.cookieEnabled ? true : false;
+	};
+
+	/**
+	 * 해당 key의 쿠키값을 가져온다.
+	 * 
+	 * TODO : 다양한 스토리지를 이용하여 Cookie 정보를 반환합니다.
+	 * 
+	 * @param {String}
+	 *            key
+	 */
+	this.getCookie = function(key) {
+
+		var result = new RegExp('(?:^|; )' + key + '=([^;]*)')
+				.exec(document.cookie);
+
+		return (result != null) ? decodeURIComponent(result[1]) : null;
+	};
+
+	/**
+	 * 해당 key에 value 값의 쿠키를 생성한다. options에서 expired time, path, domain을 설정할 수
+	 * 있다.
+	 * 
+	 * TODO : 다양한 스토리지를 이용하여 Cookie 정보를 설정합니다.
+	 * 
+	 * @param {String}
+	 *            key, {String} value, {String} options
+	 */
+	this.setCookie = function(key, value, options) {
+
+		options = options || {};
+
+		document.cookie = [
+				key + "=" + encodeURIComponent(value),
+				options.expires ? '; expires=' + options.expires.toUTCString()
+						: '', options.path ? '; path=' + options.path : '',
+				options.domain ? '; domain=' + options.domain : '' ].join('');
+	};
+
+	/**
+	 * 해당 key에 value 값의 영구 쿠키를 생성한다. (실제로는 expired time을 충분히 긴 시간으로 지정하는것으로
+	 * 영구적으로 지속되는것 같은 효과를 준다.) options에서 path, domain을 설정할 수 있다.
+	 * 
+	 * TODO : 다양한 스토리지를 이용하여 Cookie 정보를 설정합니다.
+	 * 
+	 * @param {String}
+	 *            key, {String} value, {String} options
+	 */
+	this.setPersistentCookie = function(key, value, options) {
+
+		options = options || {};
+
+		document.cookie = [ key + "=" + encodeURIComponent(value),
+				'; expires=Thu, 01-Jan-2050 00:00:01 GMT',
+				options.path ? '; path=' + options.path : '',
+				options.domain ? '; domain=' + options.domain : '' ].join('');
+	}
+
+	/**
+	 * 해당 key의 쿠키값을 삭제한다. options에 path, domain을 설정하여 저장할때 지정한 path와 domain이
+	 * 일치하는 쿠키를 삭제한다.
+	 * 
+	 * TODO : 다양한 스토리지를 이용하여 Cookie 정보를 설정합니다.
+	 * 
+	 * @param {String}
+	 *            key, {Object} options
+	 */
+	this.removeCookie = function(key, options) {
+
+		options = options || {};
+
+		document.cookie = [
+				key + "=",
+				'; expires=Thu, 01-Jan-1970 00:00:01 GMT',
+				options.path ? '; path=' + options.path
+						: (this.path ? '; path=' + this.path : ''),
+				options.domain ? '; domain=' + options.domain
+						: (this.domain ? '; domain=' + this.domain : '') ]
+				.join('');
+	}
+};
+SeeToc.webCookie = new SeeToc.WebCookie;
+/**
+ * 브라우저 쿠키를 관리하는 클래스이다.
+ */
+SeeToc.Cookie = function() {
+
+	this.cookieModules = [ SeeToc.webCookie, 
+			SeeToc.webStorageCookie ];
+
+	var _cnt = 0;
+
+	this.getCookieModules = function() {
+		return this.cookieModules;
+	};
+	/**
+	 * 해당 key의 쿠키값을 가져온다.
+	 * 
+	 * @param {String}
+	 *            key
+	 */
+	this.getCookie = function(key) {
+
+		var result = null;
+
+		for ( var i = 0; i < this.cookieModules.length; i++) {
+			if (this.cookieModules[i].isUse()) {
+				result = this.cookieModules[i].getCookie(key);
+			}
+
+			if (result != null && result != 'undefined' && result != undefined ) {
+				return result;
+			}
+		}
+
+		return result;
+	};
+
+	/**
+	 * 해당 key에 value 값의 쿠키를 생성한다. options에서 expired time, path, domain을 설정할 수
+	 * 있다.
+	 * 
+	 * @param {String}
+	 *            key, {String} value, {String} options
+	 */
+	this.setCookie = function(key, value, options) {
+
+		if (value == 'undefined' || value == undefined ) {
+			value = null;
+		}
+
+		options = options || {};
+
+		this.cookieModules[0].setCookie(key, value, options)
+	};
+
+	/**
+	 * 해당 key에 value 값의 영구 쿠키를 생성한다. (실제로는 expired time을 충분히 긴 시간으로 지정하는것으로
+	 * 영구적으로 지속되는것 같은 효과를 준다.) options에서 path, domain을 설정할 수 있다.
+	 * 
+	 * @param {String}
+	 *            key, {String} value, {String} options
+	 */
+	this.setPersistentCookie = function(key, value, options) {
+
+		if (value == 'undefined' || value == undefined ) {
+			value = null;
+		}
+		
+		options = options || {};
+
+		for ( var i = 0; i < this.cookieModules.length; i++) {
+			if (this.cookieModules[i].isUse()) {
+				this.cookieModules[i].setPersistentCookie(key, value, options);
+			}
+		}
+	}
+
+	/**
+	 * 해당 key의 쿠키값을 삭제한다. options에 path, domain을 설정하여 저장할때 지정한 path와 domain이
+	 * 일치하는 쿠키를 삭제한다.
+	 * 
+	 * @param {String}
+	 *            key, {Object} options
+	 */
+	this.removeCookie = function(key, options) {
+
+		options = options || {};
+
+		for ( var i = 0; i < this.cookieModules.length; i++) {
+			if (this.cookieModules[i].isUse()) {
+				this.cookieModules[i].removeCookie(key, options);
+			}
+		}
+	}
+};
+SeeToc.cookie = new SeeToc.Cookie;
+/**
+ * 모니터링 서버로 로그를 전송하는 역할을 하는 클래스이다.
+ */
+SeeToc.Logger = function() {
+	var self = this;
+
+	/**
+	 * 파라미터로 넘겨준 숫자만큼의 길이의 무작위 문자열을 반환한다. 문자열은 0~9, A-Z로 구성된다.
+	 * 
+	 * @param {Number}
+	 *            len
+	 * @returns {String}
+	 */
+	function getRandomString(len) {
+		var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		len = len || 32;
+		var s = [];
+		for ( var i = 0; i < len; i++) {
+			var rnum = Math.floor(Math.random() * chars.length);
+			s.push(chars.substring(rnum, rnum + 1));
+		}
+		return s.join('');
+	}
+
+	/**
+	 * 해당 event를 전송할 서버의 URL을 반환한다.
+	 * 
+	 * @param {SeeToc.Event}
+	 *            event
+	 * @returns {String}
+	 */
+	function getLoggingURL(event, options) {
+		var url = [];
+		if (document.location.protocol == 'https:') {
+			url.push(SeeToc.config.getMonitorServerSecureURL());
+		} else {
+			url.push(SeeToc.config.getMonitorServerURL());
+		}
+
+		var target = (event.type == '') ? 'state' : 'event';
+		if (options) {
+			// 옵션에 명시적으로 타겟 URL 이 설정된 경우, 해당 타겟 URL 사용
+			if (options.target) {
+				target = options.target;
+			}
+		}
+
+		url.push('/' + target);
+		url.push('/?ra=' + getRandomString());
+		url.push(event.getEventParameter());
+
+		return url.join('');
+	}
+
+	function getMd5FontInfo() {
+		return SeeToc.util.md5(getFontInfo());
+	}
+
+	function getFontInfo() {
+
+		var fonts = SeeToc.flashCookie.getSystemFonts();
+		var result = "";
+
+		for ( var i = 0; i < fonts.length; i++) {
+			result += fonts[i].fontName + ' || ';
+		}
+
+		return result;
+	}
+
+	/**
+	 * 모니터링 서버로 로그를 전송할때 항상 사용하는 파라미터들을 가지고 있는 객체를 반환한다.
+	 * 
+	 * @returns {Object}
+	 */
+	function getCommonData(options) {
+
+		var cd = {};
+		cd['service_id'] = SeeToc.config.getServiceId();
+		cd['pc_id'] = SeeToc.config.getPcId();
+		cd['session_id'] = SeeToc.config.getSessionId();
+		cd['screen'] = screen.width + 'x' + screen.height;
+		cd['language'] = (navigator.browserLanguage || navigator.language || '');
+		cd['mode'] = SeeToc.config.getMode();
+
+		var root_window = window;
+		var root_parent = parent;
+
+		try {
+			while (root_window != root_parent) {
+				root_window = root_parent;
+				root_parent = root_parent.parent;
+			}
+		} catch (e) {
+		}
+
+		var isCross = false;
+		var parent_href = '';
+		
+		// tmp와 같은 함수를 이용하여 처리하면 빌드시 해단 변수가 다시 사용되지 않아 자동으로 빠지게 된다. 이를 해결하기 위하여 console를 이용하여 parnet.location.href에 
+		// 접근하고 이를 이용하여 catch문에 접근이 가능 하도록 하였다.
+		try {
+			parent_href = parent.location.href;
+			
+			isCross = false;
+		} catch (e) {
+			isCross = true;
+		}
+
+		var root_referrer = parent_href;
+
+		if (window == root_parent) {
+			root_referrer = document.referrer;
+		} else {
+			if (isCross || parent.location.href != document.referrer) {
+				var domainList = SeeToc.config.getDomainName();
+
+				if (domainList != null) {
+					var match = false;
+					var pattString = "^(https?):\/\/([^:\/]+)";
+					var referrerDomain = document.referrer.match(pattString)[2];
+
+					for ( var i = 0; i < domainList.length; i++) {
+						if (domainList[i].indexOf(referrerDomain) != -1) {
+							match = true;
+						}
+					}
+
+					if (match) {
+						if (isCross) {
+							root_referrer = '';
+						} else {
+							root_referrer = root_parent.document.referrer;
+						}
+					} else {
+						root_referrer = document.referrer;
+					}
+				} else {
+					root_referrer = document.referrer;
+				}
+			} else {
+				try {
+					root_referrer = root_parent.document.referrer;
+				} catch (e) {
+					root_referrer = parent.document.referrer;
+				}
+			}
+		}
+
+		cd['referrer'] = root_referrer;
+
+		return cd;
+	}
+	
+	/**
+	 * 모니터링 서버로 로그를 전송할때 항상 사용하는 파라미터들을 가지고 있는 객체를 반환한다.
+	 * 
+	 * @returns {Object}
+	 */
+	function getCommonDataPv(options) {
+
+		var cd = getCommonData(options);
+		
+		var unique_infos = new Array();
+		var unique_info_plug = {};
+		
+		unique_info_plug.code = SeeToc.ENUM.UNIQUE.PLUG;
+		unique_info_plug.hsCode = SeeToc.util.getMd5PluginsInfo();
+
+		if (options && options.includeOriginValue) {
+			unique_info_plug.orgValue = SeeToc.util.getPluginsInfo();
+		}
+
+		unique_infos.push(unique_info_plug);
+
+		var unique_info_user_agent = {};
+		
+		unique_info_user_agent.code = SeeToc.ENUM.UNIQUE.USER_AGENT;
+		unique_info_user_agent.hsCode = SeeToc.util.getMd5UserAgentInfo();
+
+		if (options && options.includeOriginValue) {
+			unique_info_user_agent.orgValue = SeeToc.util.getUserAgentInfo();
+		}
+
+		unique_infos.push(unique_info_user_agent);
+
+		var unique_info_screen = {};
+		
+		unique_info_screen.code = SeeToc.ENUM.UNIQUE.SCREEN;
+		unique_info_screen.hsCode = SeeToc.util.getMd5ScreenInfo();
+
+		if (options && options.includeOriginValue) {
+			unique_info_screen.orgValue = SeeToc.util.getScreenInfo();
+		}
+
+		unique_infos.push(unique_info_screen);
+
+		if (SeeToc.config.isReadyCookie() && SeeToc.flashCookie != undefined && SeeToc.flashCookie.isUse()) {
+			
+			var unique_info_font = {};
+			
+			unique_info_font.code = SeeToc.ENUM.UNIQUE.FONT;
+			unique_info_font.hsCode = getMd5FontInfo();
+			
+			if (options && options.includeOriginValue) {
+				unique_info_font.orgValue = getFontInfo();
+			}
+
+			unique_infos.push(unique_info_font);
+		}
+
+		cd['unique_info'] = SeeToc.util.jsonArrayToString(unique_infos);
+		
+		return cd;
+	}
+
+	/**
+	 * 해당 문자열이 빈문자열인지 판단한다.
+	 * 
+	 * @param {String}
+	 *            str
+	 * @returns {Boolean}
+	 */
+	function isEmptyString(str) {
+		return typeof str === 'undefined' || str === null || str === '';
+	}
+
+	/**
+	 * pageview 타입의 이벤트를 전송하기 위한 유효성을 검사한다. ServiceId와 PcId가 반드시 있어야 한다.
+	 * 
+	 * @returns {Boolean}
+	 */
+	function validatePageview() {
+		var serviceId = SeeToc.config.getServiceId();
+		// var pcId = SeeToc.config.getPcId();
+
+		// if (isEmptyString(serviceId) || isEmptyString(pcId)) {
+		if (isEmptyString(serviceId)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * ping을 전송하기 위한 유효성을 검사한다. ServiceId, PcId, SessionIdrㅏ 반드시 있어야 한다.
+	 * 
+	 * @returns {Boolean}
+	 */
+	function validatePing() {
+		var serviceId = SeeToc.config.getServiceId();
+		var pcId = SeeToc.config.getPcId();
+		var sessionId = SeeToc.config.getSessionId();
+
+		if (isEmptyString(serviceId) || isEmptyString(pcId)
+				|| isEmptyString(sessionId)) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * 일반적인 형태의 이벤트를 전송하기 위한 유효성을 검사한다. ServiceId, PcId, SessionId, typedㅣ 반드시
+	 * 있어야 한다.
+	 * 
+	 * @param {String}
+	 *            type
+	 * @returns {Boolean}
+	 */
+	function validateEvent(type) {
+		var serviceId = SeeToc.config.getServiceId();
+		var pcId = SeeToc.config.getPcId();
+		//var sessionId = SeeToc.config.getSessionId();
+
+		//if (isEmptyString(serviceId) || isEmptyString(pcId) || isEmptyString(sessionId) || isEmptyString(type)) {
+		if (isEmptyString(serviceId) || isEmptyString(pcId) || isEmptyString(type)) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * 해당 url로 http 요청을 한다.
+	 * 
+	 * @param {String}
+	 *            url, {Object} options
+	 */
+	this.request = function(url, options) {
+		var request = new SeeToc.Request(url, options, true);
+		return request.load();
+	};
+
+	/**
+	 * 모니터링 서버로 ping을 전송한다. 유효성 검사를 통과하지 못할 경우에는 전송하지 않는다.
+	 */
+	this.ping = function() {
+
+		if (!validatePing()) {
+			return false;
+		}
+
+		SeeToc.config.setEndTime(new Date().getTime());
+
+		var e = new SeeToc.Event('', getCommonData(), {}, {});
+		self.request(getLoggingURL(e));
+	};
+
+	/**
+	 * IE7에서 setTimeout 설정이 사라지는 현상을 방지하기 위하여 추가된 함수입니다.
+	 * 
+	 * 20초 간격으로 마지막 Ping의 존재 여부를 확인하고 존재하지 않으면 다시 Ping를 시작 합니다.
+	 */
+	this.intervalPing = function() {
+		if (SeeToc.config.getEndTime() != 0
+				&& (SeeToc.config.getEndTime() + 20000) < new Date().getTime()) {
+			this.ping();
+		}
+	};
+
+	/**
+	 * 모니터링 서버로 pageview 이벤트를 전송한다. 유효성 검사를 통과하지 못할 경우에는 전송하지 않는다.
+	 */
+	this.sendPageview = function(customParam) {
+
+		if ( document.location.protocol == "https:" ) {
+			//return true;
+		}
+		
+		if (!validatePageview()) {
+			return false;
+		}
+
+		// FlashCookie가 준비가 완료된 상황인지 확인하고 동작 하여야 합니다.
+		if (!SeeToc.config.isReadyCookie()) {
+			setTimeout(function(){
+				self.sendPageview(customParam);
+			}, 200);
+			return false;
+		}
+
+		var title = ((document.getElementsByTagName('title').length == 0) ? ''
+				: document.getElementsByTagName('title')[0].innerHTML);
+		
+		var options = { url : self.getLocationURL(), title : title };
+		
+		if(typeof(customParam) != "undefined") {
+
+			var paramNames = [];
+			
+			if(Object.getOwnPropertyNames != undefined) {
+				paramNames = Object.getOwnPropertyNames(customParam);	
+			} else {
+				for (var key in customParam) {
+				    if (customParam.hasOwnProperty(key)) {
+				    	paramNames.push(key);
+				    }
+				}
+			}
+			
+			for(var i = 0 ; i < paramNames.length ; i++) {
+				options[paramNames[i]] = customParam[paramNames[i]];
+			}
+		}
+
+		
+		var e = new SeeToc.Event('pageview', getCommonDataPv(), options, SeeToc.config.getVisitor());
+		
+		self.request(getLoggingURL(e));
+		
+		/*핸들러가 등록되어 있는지 확인을 한다.*/
+		if(self.sendEvnetHandler != undefined)
+		{
+			self.sendEvnetHandler(self.getLocationURL());
+		}
+	};
+	
+	this.sendEvnetHandler = undefined;
+
+	/**
+	 * document.location.href를 구합니다.
+	 */
+	this.getLocationURL = function() {
+
+		// 아이프레임으로 구성된 사이트인 경우 광고방문의 진입하면 부모의 search를 달아 주어야 합니다.
+		var result = document.location.href;
+
+		var root_window = window;
+		var root_parent = parent;
+
+		try {
+			while (root_window != root_parent) {
+				root_window = root_parent;
+				root_parent = root_parent.parent;
+			}
+		} catch (e) {
+		}
+
+		var isCross = false;
+
+		// tmp와 같은 함수를 이용하여 처리하면 빌드시 해단 변수가 다시 사용되지 않아 자동으로 빠지게 된다. 이를 해결하기 위하여 console를 이용하여 parnet.location.href에 
+		// 접근하고 이를 이용하여 catch문에 접근이 가능 하도록 하였다.
+		try {
+			if (typeof console !== 'undefined') {
+				if(root_parent.location.href != '')
+				{
+					isCross = false;		
+				}
+			}
+			isCross = false;
+		} catch (e) {
+			isCross = true;
+		}
+
+		if (!isCross && window != parent
+				&& parent.location.href == document.referrer) {
+			var parentSearch = '';
+
+			try {
+				parentSearch = root_parent.location.search;
+			} catch (e) {
+			}
+
+			if (document.location.search && parentSearch) {
+				parentSearch = '&'
+						+ parentSearch.substr(1, parentSearch.length);
+			}
+
+			result += parentSearch;
+		}
+
+		// url의 끝 문자가 ? 인경우 모니터링 서버에서 오류가 발생하므로 이를 통해서 url를 구합니다.
+		if (result.substr(result.length - 1, 1) == "?") {
+			return result.substr(0, result.length - 1);
+		}
+
+		return result;
+	};
+
+	/**
+	 * 해당 파라미터에 대한 이벤트를 모니터링 서버로 전송한다. 유효성 검사를 통과하지 못할 경우에는 전송하지 않는다.
+	 * 
+	 * @param {Object}
+	 *            param
+	 */
+	this.sendEvent = function(param) {
+		if (!validateEvent(param.type)) {
+			return false;
+		}
+
+		var e = new SeeToc.Event(param.type, getCommonData(), param,
+				SeeToc.config.getVisitor());
+		self.request(getLoggingURL(e));
+	};
+
+	/**
+	 * 방문자의 정보를 서버로 전송한다. 브라우저 플러그인 목록, 시스템 폰트 정보를 가공하지 않은 채로 보낸다.
+	 */
+	this.sendVisitorUniqueData = function() {
+		var e = new SeeToc.Event('', getCommonDataPv({
+			includeOriginValue : true
+		}));
+		self.request(getLoggingURL(e, {
+			target : 'info'
+		}));
+	};
+};
+SeeToc.logger = new SeeToc.Logger;
+SeeToc.callback = SeeToc.callback || {};
+SeeToc.callback.sessionHandler = function(pcId, sessionId) {
+
+	if (!SeeToc.config.getPcId()) {
+		SeeToc.config.setPcId(pcId);
+		SeeToc.config.setMode(SeeToc.ENUM.MODE.NEW);
+	} else {
+		if (pcId && pcId != SeeToc.config.getPcId()) {
+			if (typeof console !== 'undefined') {
+				console.log("방문자 Cookie의 PcId와 서버로 부터 전달 받은 PcId가 불일치 합니다.");
+				console.log("Config PcID : " + SeeToc.config.getPcId()
+						+ " Server Return PcId : " + pcId);
+			}
+		}
+	}
+
+	SeeToc.config.setPcId(pcId);
+	SeeToc.config.setSessionId(sessionId);
+
+	setTimeout(function() {
+		SeeToc.logger.ping();
+
+		if (SeeToc.config.getPingInterval() < SEETOC_PING_INTERVAL_MAX_TERM) {
+			SeeToc.config.setPingInterval(SeeToc.config.getPingInterval()
+					+ SEETOC_PING_INTERVAL_TERM);
+		}
+	}, SeeToc.config.getPingInterval());
+
+	if (SeeToc.config.getIntervalID() == -1) {
+		SeeToc.config.setIntervalID(setInterval(function() {
+			SeeToc.logger.intervalPing();
+		}, 60000));
+	}
+};
+if (typeof seetocReady !== 'undefined') {
+    seetocReady(SeeToc.config, SeeToc.logger);
+}
+(function () {
+    var detectTimeout = 60 * 1000;
+    var detectStartTime = new Date().getTime();
+
+    function detectSeetocReadyQueue () {
+        if (typeof seetocReadyQueue !== 'undefined') {
+            while (seetocReadyQueue.length > 0) {
+                var func = seetocReadyQueue.shift();
+                func(SeeToc.config, SeeToc.logger);
+            }
+        }
+        var currentTime = new Date().getTime();
+        if (currentTime - detectStartTime < detectTimeout) {
+            setTimeout(detectSeetocReadyQueue, 200);
+        }
+    }
+
+    setTimeout(detectSeetocReadyQueue, 1000);
+})();

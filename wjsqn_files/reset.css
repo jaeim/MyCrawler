@@ -1,0 +1,210 @@
+@charset "utf-8";
+
+@font-face {
+    font-family: 'Nanum Gothic';
+    src: url('../fonts/NanumGothic-Regular.eot'); /* IE9 Compat Modes */
+    src: url('../fonts/NanumGothic-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+            url('../fonts/NanumGothic-Regular.woff2') format('woff2'), /* Super Modern Browsers */
+            url('../fonts/NanumGothic-Regular.woff') format('woff'), /* Pretty Modern Browsers */
+            url('../fonts/NanumGothic-Regular.ttf')  format('truetype'); /* Safari, Android, iOS */
+    font-weight: 400
+}
+@font-face {
+    font-family: 'Nanum Gothic';
+    src: url('../fonts/NanumGothic-Bold.eot'); /* IE9 Compat Modes */
+    src: url('../fonts/NanumGothic-Bold.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+            url('../fonts/NanumGothic-Bold.woff2') format('woff2'), /* Super Modern Browsers */
+            url('../fonts/NanumGothic-Bold.woff') format('woff'), /* Pretty Modern Browsers */
+            url('../fonts/NanumGothic-Bold.ttf')  format('truetype'); /* Safari, Android, iOS */
+    font-weight: 700
+}
+@font-face {
+    font-family: 'Nanum Gothic';
+    src: url('../fonts/NanumGothic-ExtraBold.eot'); /* IE9 Compat Modes */
+    src: url('../fonts/NanumGothic-ExtraBold.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+            url('../fonts/NanumGothic-ExtraBold.woff2') format('woff2'), /* Super Modern Browsers */
+            url('../fonts/NanumGothic-ExtraBold.woff') format('woff'), /* Pretty Modern Browsers */
+            url('../fonts/NanumGothic-ExtraBold.ttf')  format('truetype'); /* Safari, Android, iOS */
+    font-weight: 800
+}
+
+/* sub - mobile ver 0827 추가 */
+@font-face {
+	font-family: 'Nanum Barun Gothic';
+	font-style: normal;
+	font-weight: 200;
+	src: url('../fonts/NanumBarunGothicUltraLight.eot'); /* IE9 Compat Modes */
+	src: url('../fonts/NanumBarunGothicUltraLight.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+		url('../fonts/NanumBarunGothicUltraLight.woff2') format('woff2'), /* Super Modern Browsers */
+		url('../fonts/NanumBarunGothicUltraLight.woff') format('woff'), /* Pretty Modern Browsers */
+		url('../fonts/NanumBarunGothicUltraLight.ttf')  format('truetype'); /* Safari, Android, iOS */
+}
+
+@font-face {
+	font-family: 'Nanum Barun Gothic';
+	font-style: normal;
+	font-weight: 300;
+	src: url('../fonts/NanumBarunGothicLight.eot'); /* IE9 Compat Modes */
+	src: url('../fonts/NanumBarunGothicLight.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+		url('../fonts/NanumBarunGothicLight.woff2') format('woff2'), /* Super Modern Browsers */
+		url('../fonts/NanumBarunGothicLight.woff') format('woff'), /* Pretty Modern Browsers */
+		url('../fonts/NanumBarunGothicLight.ttf')  format('truetype'); /* Safari, Android, iOS */
+}
+
+@font-face {
+	font-family: 'Nanum Barun Gothic';
+	font-style: normal;
+	font-weight: 400;
+	src: url('../fonts/NanumBarunGothic.eot'); /* IE9 Compat Modes */
+	src: url('../fonts/NanumBarunGothic.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+		url('../fonts/NanumBarunGothic.woff2') format('woff2'), /* Super Modern Browsers */
+		url('../fonts/NanumBarunGothic.woff') format('woff'), /* Pretty Modern Browsers */
+		url('../fonts/NanumBarunGothic.ttf')  format('truetype'); /* Safari, Android, iOS */
+}
+
+@font-face {
+	font-family: 'Nanum Barun Gothic';
+	font-style: normal;
+	font-weight: 700;
+	src: url('../fonts/NanumBarunGothicBold.eot'); /* IE9 Compat Modes */
+	src: url('../fonts/NanumBarunGothicBold.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+		url('../fonts/NanumBarunGothicBold.woff2') format('woff2'), /* Super Modern Browsers */
+		url('../fonts/NanumBarunGothicBold.woff') format('woff'), /* Pretty Modern Browsers */
+		url('../fonts/NanumBarunGothicBold.ttf')  format('truetype'); /* Safari, Android, iOS */
+}
+
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+abbr, address, cite, code,
+del, dfn, em, img, ins, kbd, q, samp,
+small, sub, sup, var,
+b, i,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section, summary,
+time, mark, audio, video {
+    margin:0;
+    padding:0;
+    border:0;
+   /*  outline:0; */
+/* font-size:16px->14px 로 수정 2018-07-16 주미숙 */
+    font-size:14px;
+    vertical-align:baseline;
+    background:transparent;
+    font-family: 'Nanum Gothic';
+    font-weight: 400;
+    color: #222;
+    font-style: normal;
+    line-height: 1.35em;
+}
+body {
+    line-height:1;
+    -webkit-text-size-adjust:none;
+    -webkit-font-smoothing: antialiased;
+    min-width: 320px;
+}
+article,aside,details,figcaption,figure,
+footer,header,hgroup,menu,nav,section { 
+    display:block;
+}
+nav ul {
+    list-style:none;
+}
+li{
+    list-style: none;
+}
+blockquote, q {
+    quotes:none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content:'';
+    content:none;
+}
+a {
+    margin:0;
+    padding:0;
+    font-size:100%;
+    vertical-align:baseline;
+    background:transparent;
+    text-decoration: none;
+    color:#222;
+}
+ins {
+    background-color:#ff9;
+    color:#000;
+    text-decoration:none;
+}
+mark {
+    background-color:#ff9;
+    color:#000; 
+    font-style:italic;
+    font-weight:bold;
+}
+del {
+    text-decoration: line-through;
+}
+abbr[title], dfn[title] {
+    border-bottom:1px dotted;
+    cursor:help;
+}
+table {
+    border-collapse:separate;
+    border-spacing:0;
+    table-layout: fixed
+}
+hr {
+    display:block;
+    height:1px;
+    border:0;   
+    border-top:1px solid #dddddd;
+    margin:1em 0;
+    padding:0;
+}
+input, select {
+    vertical-align:middle;
+    background: transparent;
+    border:1px solid #ddd;
+}
+
+br { font-size:0; line-height:0; }
+/* 아래 추가 2018-07-17 주미숙 */
+img{vertical-align:top;}
+
+button{cursor:pointer; border:0; background-color:#fff;}
+button > *{position:relative; display:block;}/*클릭시 문자 흔들림 방지(익스플로러)*/
+
+::-webkit-file-upload-button { cursor:pointer;}
+input { -webkit-appearance: none; -moz-appearance: none; appearance: none; border-radius: 0; }
+input:disabled { -webkit-appearance: none; -moz-appearance: none; appearance: none; color: #555555; -webkit-text-fill-color: #555555; opacity: 1; }
+
+/* input-placeholder */
+::-webkit-input-placeholder, ::-moz-placeholder, :-ms-input-placeholder, :-moz-placeholder {color: #767676; font-family: 'Nanum Gothic'; }
+
+
+
+/* sub - mobile ver 0827 추가 */
+
+@media (max-width: 1151px) {
+	
+	html, body, div, span, object, iframe,
+	h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+	abbr, address, cite, code,
+	del, dfn, em, img, ins, kbd, q, samp,
+	small, sub, sup, var,
+	b, i,
+	dl, dt, dd, ol, ul, li,
+	fieldset, form, label, legend,
+	table, caption, tbody, tfoot, thead, tr, th, td,
+	article, aside, canvas, details, figcaption, figure, 
+	footer, header, hgroup, menu, nav, section, summary,
+	time, mark, audio, video {
+
+		/* font-size: 14px->16px 로 수정 20180918 */
+		font-size: 16px;
+		font-family: 'Nanum Barun Gothic';
+		font-weight: 400;
+	}
+}
