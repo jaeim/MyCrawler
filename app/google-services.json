@@ -8,12 +8,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:368782565251:android:3096247e4f1f9dd62ce0b6",
+        "mobilesdk_app_id": "1:368782565251:android:1f58786b0525e82a2ce0b6",
         "android_client_info": {
-          "package_name": "ddwucom.mobile.distance"
+          "package_name": "ddwucom.mobile.crawlersample"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "368782565251-mhdumsf10bjlr54pnfljogt22fvqnf2e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ddwucom.mobile.crawlersample",
+            "certificate_hash": "bced222b04824cbb0c40261926e812bb53ac87dc"
+          }
+        },
         {
           "client_id": "368782565251-2e45vu8c9a6357iujcr151gosd2tr2mv.apps.googleusercontent.com",
           "client_type": 3
@@ -37,20 +45,12 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:368782565251:android:bfa16b6bcc1ee6df2ce0b6",
+        "mobilesdk_app_id": "1:368782565251:android:3096247e4f1f9dd62ce0b6",
         "android_client_info": {
-          "package_name": "dwucom.mobile.carwlersample"
+          "package_name": "ddwucom.mobile.distance"
         }
       },
       "oauth_client": [
-        {
-          "client_id": "368782565251-rn7m91id7dng4sdmmei3ek54ln46rp5o.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "dwucom.mobile.carwlersample",
-            "certificate_hash": "bced222b04824cbb0c40261926e812bb53ac87dc"
-          }
-        },
         {
           "client_id": "368782565251-2e45vu8c9a6357iujcr151gosd2tr2mv.apps.googleusercontent.com",
           "client_type": 3

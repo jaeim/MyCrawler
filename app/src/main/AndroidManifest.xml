@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ddwucom.mobile.carwlersample">
+    package="ddwucom.mobile.crawlersample">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
@@ -14,7 +14,7 @@
         android:usesCleartextTraffic="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="ddwucom.mobile.carwlersample.MainActivity">
+        <activity android:name="ddwucom.mobile.crawlersample.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

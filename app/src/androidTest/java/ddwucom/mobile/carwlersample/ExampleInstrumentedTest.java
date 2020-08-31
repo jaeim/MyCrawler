@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("ddwucom.mobile.carwler", appContext.getPackageName());
+        assertEquals("ddwucom.mobile.crawlersample", appContext.getPackageName());
     }
 }

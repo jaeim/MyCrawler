@@ -1,4 +1,4 @@
-package ddwucom.mobile.carwlersample;
+package ddwucom.mobile.crawlersample;
 
 import java.io.BufferedReader;
 import java.io.IOException;

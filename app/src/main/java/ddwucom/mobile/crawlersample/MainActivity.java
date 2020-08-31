@@ -1,16 +1,10 @@
-package ddwucom.mobile.carwlersample;
+package ddwucom.mobile.crawlersample;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.ProgressDialog;
-import android.icu.util.LocaleData;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 //import org.w3c.dom.Element;
 import android.util.Log;
@@ -19,11 +13,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.common.base.Strings;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -31,22 +21,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
-import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity  {
 
@@ -74,7 +59,7 @@ public class MainActivity extends AppCompatActivity  {
         //asyncTask 자동실행! .execute() 대신..
         new JsoupAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-        removePatient();
+//        removePatient();
 
     }
 
@@ -111,6 +96,7 @@ public class MainActivity extends AppCompatActivity  {
         protected void onPostExecute(Document doc) {
             String patient_no = null;
             String district = null;
+            //확진날짜의 String 형태
             String beforeDate = null;
 
             Log.d(TAG, doc.title());
@@ -147,7 +133,7 @@ public class MainActivity extends AppCompatActivity  {
                 SimpleDateFormat dateFormat = new SimpleDateFormat ("M/d");
                 try {
                     diagDate = dateFormat.parse(beforeDate);
-//                    compareDate = dateFormat.parse("8/21");
+//                    maximunDate = dateFormat.parse("8/21");
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
@@ -160,24 +146,35 @@ public class MainActivity extends AppCompatActivity  {
                 diagCalender.set(Calendar.SECOND, 0);
                 diagCalender.set(Calendar.MILLISECOND, 0);
 
-                //오늘날짜 - 5일
+                //오늘날짜 - 14일
                 long now = System.currentTimeMillis();
-                Date compareDate = new Date(now);
-                Calendar compareCalender = Calendar.getInstance();
-                compareCalender.setTime(compareDate);
+                Date mininumDate = new Date(now);
+                Calendar minimumCalendar = Calendar.getInstance();
+                minimumCalendar.setTime(mininumDate);
 
-                compareCalender.add(Calendar.DATE, -6);
-                compareCalender.set(Calendar.HOUR_OF_DAY, 0);
-                compareCalender.set(Calendar.MINUTE, 0);
-                compareCalender.set(Calendar.SECOND, 0);
-                compareCalender.set(Calendar.MILLISECOND, 0);
+                minimumCalendar.add(Calendar.DATE, -14);
+                minimumCalendar.set(Calendar.HOUR_OF_DAY, 0);
+                minimumCalendar.set(Calendar.MINUTE, 0);
+                minimumCalendar.set(Calendar.SECOND, 0);
+                minimumCalendar.set(Calendar.MILLISECOND, 0);
 
-//                Log.d(TAG, patient_no + " " + dateFormat.format(compareCalender.getTime()) + " " + district + "\n");
-//                Log.d(TAG, "확진날짜 : " + dateFormat.format(diagCalender.getTime()) + " 비교날짜 : " + dateFormat.format(compareCalender.getTime()));
+                //오늘 날짜 - 2일
+                Date maximunDate = new Date(now);
+                Calendar maximumCalendar = Calendar.getInstance();
+                maximumCalendar.setTime(maximunDate);
+
+                maximumCalendar.add(Calendar.DATE, -2);
+                maximumCalendar.set(Calendar.HOUR_OF_DAY, 0);
+                maximumCalendar.set(Calendar.MINUTE, 0);
+                maximumCalendar.set(Calendar.SECOND, 0);
+                maximumCalendar.set(Calendar.MILLISECOND, 0);
+
+//                Log.d(TAG, patient_no + " " + dateFormat.format(minimumCalendar.getTime()) + " " + district + "\n");
+//                Log.d(TAG, "확진날짜 : " + dateFormat.format(diagCalender.getTime()) + " 비교날짜 : " + dateFormat.format(minimumCalendar.getTime()));
 
 
-                //원래 코드:(diagCalender.after(compareCalender)) && district.equals("종로구")
-                if ((diagCalender.after(compareCalender)) && district.equals("종로구")) {
+                //원래 코드:(diagCalender.after(minimumCalendar)) && district.equals("종로구")
+                if ((diagCalender.after(minimumCalendar) && diagCalender.before(maximumCalendar)) && (district.equals("종로구") || district.equals("광진구"))) {
                     Log.d(TAG, patient_no + " " + dateFormat.format(diagCalender.getTime()) + " " + district + "\n");
 
                     savePatient(patient_no, district, beforeDate);
@@ -432,7 +429,7 @@ public class MainActivity extends AppCompatActivity  {
         Calendar compareCalender = Calendar.getInstance();
         compareCalender.setTime(compareDate);
 
-        compareCalender.add(Calendar.DATE, -6);
+        compareCalender.add(Calendar.DATE, -3);
         compareCalender.set(Calendar.HOUR_OF_DAY, 0);
         compareCalender.set(Calendar.MINUTE, 0);
         compareCalender.set(Calendar.SECOND, 0);
@@ -441,7 +438,7 @@ public class MainActivity extends AppCompatActivity  {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("patients")
-                .whereEqualTo("diagDate", dateFormat.format(compareCalender.getTime()))
+                .whereLessThan("diagDate", dateFormat.format(compareCalender.getTime()))
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

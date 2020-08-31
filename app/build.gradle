@@ -11,7 +11,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "ddwucom.mobile.carwlersample"
+        applicationId "ddwucom.mobile.crawlersample"
         minSdkVersion 16
         targetSdkVersion 30
         versionCode 1
