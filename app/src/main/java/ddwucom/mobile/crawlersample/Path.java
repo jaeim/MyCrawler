@@ -12,7 +12,14 @@ public class Path {
     private Double lat;
     private Double lng;
 
-
+    public Path() {
+        this.patient_no = null;
+        this.place = null;
+        this.visitDate = null;
+        this.disinfect = null;
+        this.lat = null;
+        this.lng = null;
+    }
 
     public Path(String place, String visitDate) {
         this.place = place;

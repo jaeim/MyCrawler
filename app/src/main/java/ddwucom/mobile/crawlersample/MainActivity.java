@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 //import org.w3c.dom.Element;
 import android.util.Log;
@@ -13,6 +15,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -37,7 +40,8 @@ public class MainActivity extends AppCompatActivity  {
 
     final static String TAG = "MainActivity";
 
-    String url = "https://www.seoul.go.kr/coronaV/coronaStatus.do?menu_code=01#route_page_top";
+//    String url = "https://www.seoul.go.kr/coronaV/coronaStatus.do?menu_code=01#route_page_top";
+    String url = "https://www.seoul.go.kr/coronaV/coronaStatus.do";
     String data = "";
     TextView textView;
 
@@ -56,11 +60,21 @@ public class MainActivity extends AppCompatActivity  {
 
         textView = findViewById(R.id.data);
 
+        Button button = findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                JsoupAsyncTask jsoupAsyncTask = new JsoupAsyncTask();
+                jsoupAsyncTask.execute();
+            }
+        });
+
         //asyncTask 자동실행! .execute() 대신..
-        new JsoupAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//        new JsoupAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
 
 //        removePatient();
-
+//        getPath();
     }
 
     private class JsoupAsyncTask extends AsyncTask<Void, Void, Document> {
@@ -85,6 +99,7 @@ public class MainActivity extends AppCompatActivity  {
                         get();
 
                 Log.d(TAG, "connected");
+
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -141,10 +156,12 @@ public class MainActivity extends AppCompatActivity  {
                 diagCalender.setTime(diagDate);
 
                 diagCalender.add(Calendar.YEAR, 50);
-                diagCalender.set(Calendar.HOUR_OF_DAY, 0);
-                diagCalender.set(Calendar.MINUTE, 0);
-                diagCalender.set(Calendar.SECOND, 0);
-                diagCalender.set(Calendar.MILLISECOND, 0);
+
+                diagCalender = initCalendar(diagCalender);
+//                diagCalender.set(Calendar.HOUR_OF_DAY, 0);
+//                diagCalender.set(Calendar.MINUTE, 0);
+//                diagCalender.set(Calendar.SECOND, 0);
+//                diagCalender.set(Calendar.MILLISECOND, 0);
 
                 //오늘날짜 - 14일
                 long now = System.currentTimeMillis();
@@ -153,10 +170,8 @@ public class MainActivity extends AppCompatActivity  {
                 minimumCalendar.setTime(mininumDate);
 
                 minimumCalendar.add(Calendar.DATE, -14);
-                minimumCalendar.set(Calendar.HOUR_OF_DAY, 0);
-                minimumCalendar.set(Calendar.MINUTE, 0);
-                minimumCalendar.set(Calendar.SECOND, 0);
-                minimumCalendar.set(Calendar.MILLISECOND, 0);
+
+                minimumCalendar = initCalendar(minimumCalendar);
 
                 //오늘 날짜 - 2일
                 Date maximunDate = new Date(now);
@@ -164,28 +179,24 @@ public class MainActivity extends AppCompatActivity  {
                 maximumCalendar.setTime(maximunDate);
 
                 maximumCalendar.add(Calendar.DATE, -2);
-                maximumCalendar.set(Calendar.HOUR_OF_DAY, 0);
-                maximumCalendar.set(Calendar.MINUTE, 0);
-                maximumCalendar.set(Calendar.SECOND, 0);
-                maximumCalendar.set(Calendar.MILLISECOND, 0);
 
-//                Log.d(TAG, patient_no + " " + dateFormat.format(minimumCalendar.getTime()) + " " + district + "\n");
+                maximumCalendar = initCalendar(maximumCalendar);
+//                Log.d(TAG, patient_no + " " + dateFormat.format(diagCalender.getTime()) + " " + district + " ");
+
 //                Log.d(TAG, "확진날짜 : " + dateFormat.format(diagCalender.getTime()) + " 비교날짜 : " + dateFormat.format(minimumCalendar.getTime()));
 
 
                 //원래 코드:(diagCalender.after(minimumCalendar)) && district.equals("종로구")
-                if ((diagCalender.after(minimumCalendar) && diagCalender.before(maximumCalendar)) && (district.equals("종로구") || district.equals("광진구"))) {
-                    Log.d(TAG, patient_no + " " + dateFormat.format(diagCalender.getTime()) + " " + district + "\n");
-
-                    savePatient(patient_no, district, beforeDate);
+                if ((diagCalender.after(minimumCalendar) && diagCalender.before(maximumCalendar)) && (district.equals("종로구") || district.equals("광진구") ||
+                district.equals("강북구") || district.equals("관악구") || district.equals("구로구") || district.equals("동대문구") || district.equals("마포구") ||
+                        district.equals("서대문구") || district.equals("용산구") || district.equals("은평구")))
+                {
 
                     //script태그로 묶여진 내용은 select로 확인이 안됨..->String으로 추출 후 Document화->parsing
                     Node node = null;
                     node = script.childNode(1).childNode(3);
 
                     if (node != null) {
-
-
 
 //                    Log.d(TAG, "size: " + node.childNodeSize());
                         String tr = node.childNode(0).toString();
@@ -195,6 +206,10 @@ public class MainActivity extends AppCompatActivity  {
                             Elements paths = trDoc.select(".table-path tbody tr");
 
                             //저장할 동선이 있는 경우에만 환자정보 저장..?
+                            if(paths.isEmpty() == false) {
+                                Log.d(TAG, patient_no + " " + dateFormat.format(diagCalender.getTime()) + " " + district + " " + paths.isEmpty());
+                                savePatient(patient_no, district, beforeDate);
+                            }
 
                             for (Element path : paths) {
 //                        Log.d(TAG, "tr : " + path.toString());
@@ -261,8 +276,6 @@ public class MainActivity extends AppCompatActivity  {
 
     private void savePath(final String patient_no, final String disinfect, final String place, final String visitDate) {
         //해당 patient의 path중 place와 visitDate가 이미 존재한다면 (이미 위도 경도를 구해서 path로 저장됐다면) return
-//        initPath(patient_no, disinfect, place, visitDate);
-
 
 //컬렉션 그룹
 
@@ -282,33 +295,17 @@ public class MainActivity extends AppCompatActivity  {
                     }
                 });
 */
-        //컬렉션
-/*
-        db
-                .collection("paths")
-                .whereEqualTo("patient_no", patient_no)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, patient_no + " " + place);
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-//                                Log.d(TAG, document.getId() + " => " + document.getData());
-                                if(document.get("place").equals(place) && document.get("visitDate").equals(visitDate)) {
-//                                    Log.d(TAG, "hey");
-                                    return;
-                                }
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-*/
 
-
-        if (place.contains("자택") || place.contains("집") || place.contains("지인") || place.contains("타구") || place.contains("비공개")) {
+        if (place.contains("자택") || place.contains("집") || place.contains("지인") || place.contains("타구") || place.contains("비공개") || place.contains("→") || place.contains("없어") ||
+                place.contains("공개하지 않음") || place.contains("상호") || place.contains("타지역") || place.contains("타 구") || place.contains("타 시도") || place.contains("완료") ||
+                place.contains("역학조사중") || place.contains("공개여부") || place.contains("타시도") || place.contains("미공개") || place.contains("확인 후") || place.contains("*") ||
+                place.contains("직장") || place.contains("해당 지역") ||
+                place.isEmpty() || place.equals(null) || place.equals("") ||
+                place.equals(" ") || place.equals("-") || place.equals("능동") || place.equals("ATM기기") || place.equals("식당") || place.equals("공공기관") || place.equals("병원") ||
+                place.equals("약국") || place.equals("마트") || place.equals("카페") || place.equals("음식점") || place.equals("은행") || place.equals("편의점") || place.equals("금융기관") ||
+                place.equals("체육동호회") || place.equals("희망병원(자차 이용)") || place.equals("보건소 선별진료소 검체채취") || place.equals("보건소 선별진료소") || place.equals("선별진료소 검체채취")
+        )
+        {
             //path 저장x..굳이 지도에 나타낼 일도 없으니까(위도,경도 구했을때만 저장함)
         } else {
 
@@ -318,7 +315,7 @@ public class MainActivity extends AppCompatActivity  {
                     //Here you will receive the result fired from async class
                     //of onPostExecute(result) method.
 //                    Log.d(TAG, "lat : " + geoPoint.get(0) + " lng : " + geoPoint.get(1));
-                    if (geoPoint.get(0) != null && geoPoint.get(1) != null) {
+                    if (geoPoint.get(0) != null && geoPoint.get(1) != null && geoPoint != null) {
                         //위도 경도가 존재하고 && 중복되는 place, visitDate가 없으면 path 저장
                         Double lat = Double.parseDouble(geoPoint.get(0));
                         Double lng = Double.parseDouble(geoPoint.get(1));
@@ -396,17 +393,20 @@ public class MainActivity extends AppCompatActivity  {
             try {
                 JSONObject jsonObject = new JSONObject(s);
 
+                ArrayList<String> geoPoint = new ArrayList<>();
+
                 String lat = null;
                 String lng = null;
 
-                lat = ((JSONArray)jsonObject.get("results")).getJSONObject(0).getJSONObject("geometry")
-                        .getJSONObject("location").get("lat").toString();
-                lng = ((JSONArray)jsonObject.get("results")).getJSONObject(0).getJSONObject("geometry")
-                        .getJSONObject("location").get("lng").toString();
-
+                JSONArray results = (JSONArray)jsonObject.get("results");
+                if (results.length() != 0) {
+                    // handle this case, for example
+                    lat = ((JSONArray)jsonObject.get("results")).getJSONObject(0).getJSONObject("geometry")
+                            .getJSONObject("location").get("lat").toString();
+                    lng = ((JSONArray)jsonObject.get("results")).getJSONObject(0).getJSONObject("geometry")
+                            .getJSONObject("location").get("lng").toString();
+                }
 //                Log.d(TAG, "lat : " + lat + " lng : " + lng);
-
-                ArrayList<String> geoPoint = new ArrayList<>();
 
                 geoPoint.clear();
                 geoPoint.add(lat);
@@ -420,7 +420,19 @@ public class MainActivity extends AppCompatActivity  {
         }
     }
 
+    private Calendar initCalendar(Calendar calendar) {
+        Calendar newCalender = calendar;
 
+        newCalender.set(Calendar.HOUR_OF_DAY, 0);
+        newCalender.set(Calendar.MINUTE, 0);
+        newCalender.set(Calendar.SECOND, 0);
+        newCalender.set(Calendar.MILLISECOND, 0);
+
+        return newCalender;
+    }
+
+
+    //별도의 클래스로 관리하는게 좋을듯
     private void removePatient() {
         SimpleDateFormat dateFormat = new SimpleDateFormat ("M/d");
 
@@ -429,11 +441,9 @@ public class MainActivity extends AppCompatActivity  {
         Calendar compareCalender = Calendar.getInstance();
         compareCalender.setTime(compareDate);
 
-        compareCalender.add(Calendar.DATE, -3);
-        compareCalender.set(Calendar.HOUR_OF_DAY, 0);
-        compareCalender.set(Calendar.MINUTE, 0);
-        compareCalender.set(Calendar.SECOND, 0);
-        compareCalender.set(Calendar.MILLISECOND, 0);
+        compareCalender.add(Calendar.DATE, -13);
+
+        compareCalender = initCalendar(compareCalender);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -454,6 +464,25 @@ public class MainActivity extends AppCompatActivity  {
                         }
                     }
                 });
+    }
+
+
+    protected void getPath() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collectionGroup("paths").get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        for (QueryDocumentSnapshot snap : queryDocumentSnapshots) {
+                            DocumentSnapshot documentSnapshot = snap;
+                            Path path = documentSnapshot.toObject(Path.class);
+                            Log.d(TAG, path.getPatient_no() + " / " + path.getPlace());
+//                            Log.d(TAG, snap.getId() + " => " + snap.getData());
+                        }
+                    }
+                });
+
     }
 
 }
