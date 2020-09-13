@@ -16,14 +16,25 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/btn_crawl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="160dp"
-        android:layout_marginLeft="160dp"
-        android:layout_marginBottom="71dp"
-        android:text="Button"
+        android:layout_marginStart="76dp"
+        android:layout_marginLeft="76dp"
+        android:layout_marginBottom="40dp"
+        android:text="crawl"
         app:layout_constraintBottom_toTopOf="@+id/data"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btn_rm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="84dp"
+        android:layout_marginLeft="84dp"
+        android:layout_marginBottom="40dp"
+        android:text="remove"
+        app:layout_constraintBottom_toTopOf="@+id/data"
+        app:layout_constraintStart_toEndOf="@+id/btn_crawl" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

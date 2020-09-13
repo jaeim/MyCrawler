@@ -35,6 +35,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity  {
 
@@ -60,7 +62,7 @@ public class MainActivity extends AppCompatActivity  {
 
         textView = findViewById(R.id.data);
 
-        Button button = findViewById(R.id.button);
+        Button button = findViewById(R.id.btn_crawl);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -69,10 +71,19 @@ public class MainActivity extends AppCompatActivity  {
             }
         });
 
+
+
+        Button btn_rm = findViewById(R.id.btn_rm);
+        btn_rm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                removePatient();
+            }
+        });
+
+
         //asyncTask 자동실행! .execute() 대신..
 //        new JsoupAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
-
 //        removePatient();
 //        getPath();
     }
@@ -178,18 +189,16 @@ public class MainActivity extends AppCompatActivity  {
                 Calendar maximumCalendar = Calendar.getInstance();
                 maximumCalendar.setTime(maximunDate);
 
-                maximumCalendar.add(Calendar.DATE, -2);
+                maximumCalendar.add(Calendar.DATE, -1);
 
                 maximumCalendar = initCalendar(maximumCalendar);
 //                Log.d(TAG, patient_no + " " + dateFormat.format(diagCalender.getTime()) + " " + district + " ");
 
 //                Log.d(TAG, "확진날짜 : " + dateFormat.format(diagCalender.getTime()) + " 비교날짜 : " + dateFormat.format(minimumCalendar.getTime()));
 
-
-                //원래 코드:(diagCalender.after(minimumCalendar)) && district.equals("종로구")
-                if ((diagCalender.after(minimumCalendar) && diagCalender.before(maximumCalendar)) && (district.equals("종로구") || district.equals("광진구") ||
-                district.equals("강북구") || district.equals("관악구") || district.equals("구로구") || district.equals("동대문구") || district.equals("마포구") ||
-                        district.equals("서대문구") || district.equals("용산구") || district.equals("은평구")))
+                if ((diagCalender.after(minimumCalendar) && diagCalender.before(maximumCalendar)) && (district.equals("종로구") | district.equals("광진구") ||
+                district.equals("강북구")||  district.equals("관악구") ||district.equals("구로구")  || district.equals("동대문구") || district.equals("마포구") ||
+                        district.equals("서대문구") || district.equals("용산구")|| district.equals("은평구")   || district.equals("영등포구")))
                 {
 
                     //script태그로 묶여진 내용은 select로 확인이 안됨..->String으로 추출 후 Document화->parsing
@@ -214,7 +223,13 @@ public class MainActivity extends AppCompatActivity  {
                             for (Element path : paths) {
 //                        Log.d(TAG, "tr : " + path.toString());
                                 String place = null;
-                                String visitDate = null;
+//                                String visitDate = null;
+                                //날짜,시간을 분리하지 않은 원형태의 방문날짜 배열(html태그 그대로 남아있음)
+                                String[] dividedDatesWithTag = null;
+                                //날짜,시간을 분리하지 않은 원형태의 방문날짜 배열(html태그 제거)
+                                ArrayList<String> dividedDatesNoTag = new ArrayList<>();
+                                //"날짜"만 분리한 문자열 배열
+                                ArrayList<String> dividedOnlyDate = new ArrayList<>();
                                 String disinfect = null;
 
                                 Elements path_tds = path.select("td");//각 path의 요소(동/장소/주소/노출일시/...)
@@ -226,7 +241,24 @@ public class MainActivity extends AppCompatActivity  {
                                             place = path_td.text();
                                             break;
                                         case 3:
-                                            visitDate = path_td.text();
+//                                            visitDate = path_td.text();
+                                            String allVisitDate = path_td.toString();
+//                                            Log.d(TAG, allVisitDate);
+                                            dividedDatesWithTag = allVisitDate.split("<br>");
+                                            for(String date : dividedDatesWithTag) {
+//                                                Log.d(TAG, place + " : " + date);
+                                                Matcher m = Pattern.compile("(\\d{4}[\\.]\\d{1,2}[\\.]\\d{1,2}|\\d{4}[\\.]\\s\\d{1,2}[\\.]\\s\\d{1,2}|\\d{2}[\\.]\\d{1,2}[\\.]\\d{1,2}|\\d{2}[\\.]\\s\\d{1,2}[\\.]\\s\\d{1,2}|\\d{1,2}[\\.]\\d{1,2}|\\d{1,2}[\\.]\\s\\d{1,2}|\\d{4}[\\/]\\d{1,2}[\\/]\\d{1,2}|\\d{4}[\\/]\\s\\d{1,2}[\\/]\\s\\d{1,2}|\\d{2}[\\/]\\d{1,2}[\\/]\\d{1,2}|\\d{2}[\\/]\\s\\d{1,2}[\\/]\\s\\d{1,2}|\\d{1,2}[\\/]\\d{1,2}|\\d{1,2}[\\/]\\s\\d{1,2})",
+                                                        Pattern.CASE_INSENSITIVE).matcher(date);
+                                                while (m.find()) {
+                                                    dividedOnlyDate.add(m.group(1));
+                                                    //dividedDates[i]에서 <td>나</td> 문자는 제거한 후 dividedDatesNoTag에 다시 재 저장 필요함!!!!!
+                                                    String regex = "<.+?>";
+                                                    dividedDatesNoTag.add(date.replaceAll(regex, ""));
+                                                    //dividedDatesNoTag[i],dvidedDate[i]는 한 쌍 => savePath
+//                                                    Log.d(TAG, place + " : " + m.group(1) + " / " + date);
+                                                }
+
+                                    }
                                             break;
                                         case 4:
                                             disinfect = path_td.text();
@@ -237,7 +269,20 @@ public class MainActivity extends AppCompatActivity  {
                                 }
                                 //path 한 줄을 객체화 -> DB 저장
 //                        Log.d(TAG, "Place : " + place + " VisitDate : " + visitDate  + "\n");
-                                savePath(patient_no, disinfect, place, visitDate);
+//                                savePath(patient_no, disinfect, place, visitDate);
+
+                                int index = 0;
+                                for (String onlyDate : dividedOnlyDate) {
+                                    //dividedDatesNoTag[i](날짜+시간),dvidedDate[i](날짜만)는 한 쌍 => savePath
+//                                    Log.d(TAG, place + " / " + onlyDate + " / " + dividedDatesNoTag.get(index));
+                                    try {
+                                        savePath(patient_no, disinfect, place, onlyDate, dividedDatesNoTag.get(index));
+                                        index++;
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
                             }
                         }
                     }
@@ -274,36 +319,18 @@ public class MainActivity extends AppCompatActivity  {
     }
 
 
-    private void savePath(final String patient_no, final String disinfect, final String place, final String visitDate) {
+    private void savePath(final String patient_no, final String disinfect, final String place, final String onlyDate, final String dividedDatesNoTag) throws ParseException {
         //해당 patient의 path중 place와 visitDate가 이미 존재한다면 (이미 위도 경도를 구해서 path로 저장됐다면) return
-
-//컬렉션 그룹
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-/*
-        db.collectionGroup("paths").whereEqualTo("patient_no", patient_no).get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        for (QueryDocumentSnapshot snap : queryDocumentSnapshots) {;
-                            if(snap.get("place").equals(place) && snap.get("visitDate").equals(visitDate)) {
-                                    Log.d(TAG, snap.get("patient_no") + " / 기존저장된 장소: " + snap.get("place") + " /새로 저장하려는 장소 : " + place);
-
-
-                            }
-                        }
-                    }
-                });
-*/
-
+        //KEEP UPDATED@@
         if (place.contains("자택") || place.contains("집") || place.contains("지인") || place.contains("타구") || place.contains("비공개") || place.contains("→") || place.contains("없어") ||
                 place.contains("공개하지 않음") || place.contains("상호") || place.contains("타지역") || place.contains("타 구") || place.contains("타 시도") || place.contains("완료") ||
                 place.contains("역학조사중") || place.contains("공개여부") || place.contains("타시도") || place.contains("미공개") || place.contains("확인 후") || place.contains("*") ||
-                place.contains("직장") || place.contains("해당 지역") ||
+                place.contains("직장") || place.contains("해당 지역") || place.contains("타 지역") ||
                 place.isEmpty() || place.equals(null) || place.equals("") ||
                 place.equals(" ") || place.equals("-") || place.equals("능동") || place.equals("ATM기기") || place.equals("식당") || place.equals("공공기관") || place.equals("병원") ||
                 place.equals("약국") || place.equals("마트") || place.equals("카페") || place.equals("음식점") || place.equals("은행") || place.equals("편의점") || place.equals("금융기관") ||
-                place.equals("체육동호회") || place.equals("희망병원(자차 이용)") || place.equals("보건소 선별진료소 검체채취") || place.equals("보건소 선별진료소") || place.equals("선별진료소 검체채취")
+                place.equals("체육동호회") || place.equals("희망병원(자차 이용)") || place.equals("보건소 선별진료소 검체채취") || place.equals("보건소 선별진료소") || place.equals("선별진료소 검체채취") ||
+                place.equals("주유소") || place.equals("상점") || place.equals("빵집") ||  place.equals("청과물점")
         )
         {
             //path 저장x..굳이 지도에 나타낼 일도 없으니까(위도,경도 구했을때만 저장함)
@@ -311,7 +338,7 @@ public class MainActivity extends AppCompatActivity  {
 
             GetCoordinates getCoordinates = (GetCoordinates) new GetCoordinates(new AsyncResponse() {
                 @Override
-                public void processFinish(ArrayList<String> geoPoint) {
+                public void processFinish(ArrayList<String> geoPoint) throws ParseException {
                     //Here you will receive the result fired from async class
                     //of onPostExecute(result) method.
 //                    Log.d(TAG, "lat : " + geoPoint.get(0) + " lng : " + geoPoint.get(1));
@@ -320,13 +347,68 @@ public class MainActivity extends AppCompatActivity  {
                         Double lat = Double.parseDouble(geoPoint.get(0));
                         Double lng = Double.parseDouble(geoPoint.get(1));
 
-                        Path path = new Path(patient_no, place, visitDate, disinfect, lat, lng);
-                        FirebaseFirestore database = FirebaseFirestore.getInstance();
-                        
+                        //string형태의 date에서 Date변환->format->/를 기준으로 split->year,month,day형태로 저장
 
+                        //KEEP UPDATED@@@@
+                        String dividedDate[] = null;
+                        int year = 1900; int month = 01; int dayOfMonth = 01;
+                        if(onlyDate != null && dividedDatesNoTag != null) {
+                            //matcher를 통해 Date로 변환되었는지 check
+                            boolean formatCheck = false;
+                            Date date = null;
+                            String onlyDateWithString = null;
+
+                            SimpleDateFormat format1 = new SimpleDateFormat("yyyy.MM.dd");
+                            SimpleDateFormat format2 = new SimpleDateFormat("yy.MM.dd");
+                            SimpleDateFormat format3 = new SimpleDateFormat("MM.dd");
+                            SimpleDateFormat format4 = new SimpleDateFormat("MM. dd");
+
+                            SimpleDateFormat commonFormat = new SimpleDateFormat("yyyy/MM/dd");
+
+                            //각각 m1에서 처리한 내용이 m3,m4에 가서도 처리되어 오류남..formatCheck 사용
+                            Matcher m1 = Pattern.compile("(\\d{4}[\\.]\\d{1,2}[\\.]\\d{1,2}|\\d{4}[\\.]\\s\\d{1,2}[\\.]\\s\\d{1,2})", Pattern.CASE_INSENSITIVE).matcher(onlyDate);
+                            while (m1.find() && !formatCheck) {
+                                date = format1.parse(onlyDate);
+                                formatCheck = true;
+                            }
+                            Matcher m2 = Pattern.compile("(\\d{2}[\\.]\\d{1,2}[\\.]\\d{1,2}|\\d{2}[\\.]\\s\\d{1,2}[\\.]\\s\\d{1,2})", Pattern.CASE_INSENSITIVE).matcher(onlyDate);
+                            while (m2.find() && !formatCheck) {
+                                date = format2.parse(onlyDate);
+                                formatCheck = true;
+                            }
+                            Matcher m3 = Pattern.compile("(\\d{1,2}[\\.]\\d{1,2})", Pattern.CASE_INSENSITIVE).matcher(onlyDate);
+                            while (m3.find() && !formatCheck) {
+                                date = format3.parse(onlyDate);
+                                formatCheck = true;
+                            }
+                            Matcher m4 = Pattern.compile("(\\d{1,2}[\\.]\\s\\d{1,2})", Pattern.CASE_INSENSITIVE).matcher(onlyDate);
+                            while (m4.find() && !formatCheck) {
+                                date = format4.parse(onlyDate);
+                                formatCheck = true;
+                            }
+                            //year를 2020년으로 지정
+                            Calendar dateToCalendar = Calendar.getInstance();
+                            dateToCalendar.setTime(date);
+                            dateToCalendar.set(Calendar.YEAR, 2020);
+                            dateToCalendar = initCalendar(dateToCalendar);
+
+                            date = dateToCalendar.getTime();
+//                          해당 방문 날짜를 yyyy/MM/dd 형식으로 변환 후 /를 기준으로 나눈다.
+                            onlyDateWithString = commonFormat.format(date);
+//                          Log.d(TAG, place + " / " + onlyDateWithString + " / " + onlyDate);
+                            dividedDate = onlyDateWithString.split("/");
+
+                            year = Integer.parseInt(dividedDate[0]);
+                            month = Integer.parseInt(dividedDate[1]);
+                            dayOfMonth = Integer.parseInt(dividedDate[2]);
+                        }
+                        FirebaseFirestore database = FirebaseFirestore.getInstance();
+
+                        Path path = new Path(patient_no, place, year, month, dayOfMonth, dividedDatesNoTag, disinfect, lat, lng);
+//                        Log.d(TAG, "장소: " + place + " / y : " + year + " m: " + month + " d : " + dayOfMonth + " / 날짜만 : " + onlyDate + " / 날짜와 시간 : " + dividedDatesNoTag);
                         //set해서 id 지정하여 path 덮어쓰는 ver
                         database.collection("patients").document(patient_no).
-                                collection("paths").document(patient_no + " " + place)
+                                collection("paths").document(patient_no+place+month+dayOfMonth)
                                 .set(path)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
@@ -348,11 +430,10 @@ public class MainActivity extends AppCompatActivity  {
 
 
         }
-
     }
 
     public interface AsyncResponse {
-        void processFinish(ArrayList<String> geoPoint);
+        void processFinish(ArrayList<String> geoPoint) throws ParseException;
     }
 
     public static class GetCoordinates extends AsyncTask<String, Void, String > {
@@ -414,7 +495,7 @@ public class MainActivity extends AppCompatActivity  {
 
                 delegate.processFinish(geoPoint);
 
-            } catch (JSONException e) {
+            } catch (JSONException | ParseException e) {
                 e.printStackTrace();
             }
         }
@@ -434,6 +515,7 @@ public class MainActivity extends AppCompatActivity  {
 
     //별도의 클래스로 관리하는게 좋을듯
     private void removePatient() {
+        /*
         SimpleDateFormat dateFormat = new SimpleDateFormat ("M/d");
 
         long now = System.currentTimeMillis();
@@ -441,12 +523,12 @@ public class MainActivity extends AppCompatActivity  {
         Calendar compareCalender = Calendar.getInstance();
         compareCalender.setTime(compareDate);
 
-        compareCalender.add(Calendar.DATE, -13);
+        compareCalender.add(Calendar.DATE, -6);
 
         compareCalender = initCalendar(compareCalender);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
+        Log.d(TAG, dateFormat.format(compareCalender.getTime()));
         db.collection("patients")
                 .whereLessThan("diagDate", dateFormat.format(compareCalender.getTime()))
                 .get()
@@ -456,7 +538,7 @@ public class MainActivity extends AppCompatActivity  {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 //You can only delete a document once you have a DocumentReference to it.
-                                Log.d(TAG, document.getId());
+                                Log.d(TAG, document.getId() + " " + document.get("diagDate"));
                                 document.getReference().delete();
                             }
                         } else {
@@ -464,6 +546,7 @@ public class MainActivity extends AppCompatActivity  {
                         }
                     }
                 });
+         */
     }
 
 

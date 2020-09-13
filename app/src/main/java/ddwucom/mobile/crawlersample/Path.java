@@ -1,12 +1,11 @@
 package ddwucom.mobile.crawlersample;
 
 public class Path {
-
-//    private String lat;
-//    private String lon;
-    //Date 타입으로 바꿀지?
     private String patient_no;
     private String place;
+    private int year;
+    private int month;
+    private int dayOfMonth;
     private String visitDate;
     private String disinfect;
     private Double lat;
@@ -60,6 +59,18 @@ public class Path {
         this.lng = lng;
     }
 
+    public Path(String patient_no, String place, int year, int month, int dayOfMonth, String visitDate, String disinfect, Double lat, Double lng) {
+        this.patient_no = patient_no;
+        this.place = place;
+        this.year = year;
+        this.month = month;
+        this.dayOfMonth = dayOfMonth;
+        this.visitDate = visitDate;
+        this.disinfect = disinfect;
+        this.lat = lat;
+        this.lng = lng;
+    }
+
     public String getVisitDate() {
         return visitDate;
     }
@@ -106,5 +117,29 @@ public class Path {
 
     public void setPatient_no(String patient_no) {
         this.patient_no = patient_no;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public void setMonth(int month) {
+        this.month = month;
+    }
+
+    public int getDayOfMonth() {
+        return dayOfMonth;
+    }
+
+    public void setDayOfMonth(int dayOfMonth) {
+        this.dayOfMonth = dayOfMonth;
     }
 }
