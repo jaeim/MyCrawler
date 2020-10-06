@@ -15,10 +15,14 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableReference;
+import com.google.firebase.functions.HttpsCallableResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,6 +39,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,22 +68,38 @@ public class MainActivity extends AppCompatActivity  {
 
         textView = findViewById(R.id.data);
 
-        Button button = findViewById(R.id.btn_crawl);
-        button.setOnClickListener(new View.OnClickListener() {
+        Button btn_seoul_crawl = findViewById(R.id.btn_seoul_crawl);
+        btn_seoul_crawl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                JsoupAsyncTask jsoupAsyncTask = new JsoupAsyncTask();
-                jsoupAsyncTask.execute();
+                SeoulJsoupAsyncTask seoulJsoupAsyncTask = new SeoulJsoupAsyncTask();
+                seoulJsoupAsyncTask.execute();
             }
         });
-
-
 
         Button btn_rm = findViewById(R.id.btn_rm);
         btn_rm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 removePatient();
+            }
+        });
+
+        Button btn_getPath = findViewById(R.id.btn_getPath);
+        btn_getPath.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getPath();
+            }
+        });
+
+
+        Button btn_log = findViewById(R.id.btn_Log);
+        btn_log.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                JsoupBeforeSaveAsyncTask JsoupBeforeSaveAsyncTask = new JsoupBeforeSaveAsyncTask();
+                JsoupBeforeSaveAsyncTask.execute();
             }
         });
 
@@ -88,7 +110,8 @@ public class MainActivity extends AppCompatActivity  {
 //        getPath();
     }
 
-    private class JsoupAsyncTask extends AsyncTask<Void, Void, Document> {
+    /*
+    private class SeoulJsoupAsyncTask extends AsyncTask<Void, Void, Document> {
 
         Document doc = null;
 
@@ -216,7 +239,7 @@ public class MainActivity extends AppCompatActivity  {
 
                             //저장할 동선이 있는 경우에만 환자정보 저장..?
                             if(paths.isEmpty() == false) {
-                                Log.d(TAG, patient_no + " " + dateFormat.format(diagCalender.getTime()) + " " + district + " " + paths.isEmpty());
+//                                Log.d(TAG, patient_no + " " + dateFormat.format(diagCalender.getTime()) + " " + district + " " + paths.isEmpty());
                                 savePatient(patient_no, district, beforeDate);
                             }
 
@@ -268,7 +291,6 @@ public class MainActivity extends AppCompatActivity  {
 
                                 }
                                 //path 한 줄을 객체화 -> DB 저장
-//                        Log.d(TAG, "Place : " + place + " VisitDate : " + visitDate  + "\n");
 //                                savePath(patient_no, disinfect, place, visitDate);
 
                                 int index = 0;
@@ -276,6 +298,7 @@ public class MainActivity extends AppCompatActivity  {
                                     //dividedDatesNoTag[i](날짜+시간),dvidedDate[i](날짜만)는 한 쌍 => savePath
 //                                    Log.d(TAG, place + " / " + onlyDate + " / " + dividedDatesNoTag.get(index));
                                     try {
+                                        Log.d(TAG, patient_no + "/ " + district + " / 날짜: " +  onlyDate +  " / 장소: " + place);
                                         savePath(patient_no, disinfect, place, onlyDate, dividedDatesNoTag.get(index));
                                         index++;
                                     } catch (ParseException e) {
@@ -330,7 +353,9 @@ public class MainActivity extends AppCompatActivity  {
                 place.equals(" ") || place.equals("-") || place.equals("능동") || place.equals("ATM기기") || place.equals("식당") || place.equals("공공기관") || place.equals("병원") ||
                 place.equals("약국") || place.equals("마트") || place.equals("카페") || place.equals("음식점") || place.equals("은행") || place.equals("편의점") || place.equals("금융기관") ||
                 place.equals("체육동호회") || place.equals("희망병원(자차 이용)") || place.equals("보건소 선별진료소 검체채취") || place.equals("보건소 선별진료소") || place.equals("선별진료소 검체채취") ||
-                place.equals("주유소") || place.equals("상점") || place.equals("빵집") ||  place.equals("청과물점")
+                place.equals("주유소") || place.equals("상점") || place.equals("빵집") ||  place.equals("청과물점") || place.equals("A음식점") || place.equals("B음식점") || place.equals("부동산중개업소") ||
+                place.equals("A병원") || place.equals("B약국") || place.equals("D약국") || place.equals("음식접") || place.equals("B마트") || place.equals("C마트") || place.equals("D병원") ||
+                place.equals("A마트")
         )
         {
             //path 저장x..굳이 지도에 나타낼 일도 없으니까(위도,경도 구했을때만 저장함)
@@ -500,6 +525,10 @@ public class MainActivity extends AppCompatActivity  {
             }
         }
     }
+*/
+    public interface AsyncResponse {
+        void processFinish(ArrayList<String> geoPoint) throws ParseException;
+    }
 
     private Calendar initCalendar(Calendar calendar) {
         Calendar newCalender = calendar;
@@ -512,44 +541,6 @@ public class MainActivity extends AppCompatActivity  {
         return newCalender;
     }
 
-
-    //별도의 클래스로 관리하는게 좋을듯
-    private void removePatient() {
-        /*
-        SimpleDateFormat dateFormat = new SimpleDateFormat ("M/d");
-
-        long now = System.currentTimeMillis();
-        Date compareDate = new Date(now);
-        Calendar compareCalender = Calendar.getInstance();
-        compareCalender.setTime(compareDate);
-
-        compareCalender.add(Calendar.DATE, -6);
-
-        compareCalender = initCalendar(compareCalender);
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Log.d(TAG, dateFormat.format(compareCalender.getTime()));
-        db.collection("patients")
-                .whereLessThan("diagDate", dateFormat.format(compareCalender.getTime()))
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                //You can only delete a document once you have a DocumentReference to it.
-                                Log.d(TAG, document.getId() + " " + document.get("diagDate"));
-                                document.getReference().delete();
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-         */
-    }
-
-
     protected void getPath() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -560,14 +551,86 @@ public class MainActivity extends AppCompatActivity  {
                         for (QueryDocumentSnapshot snap : queryDocumentSnapshots) {
                             DocumentSnapshot documentSnapshot = snap;
                             Path path = documentSnapshot.toObject(Path.class);
-                            Log.d(TAG, path.getPatient_no() + " / " + path.getPlace());
+                            Log.d(TAG, path.getPatient_no() + " / " + path.getPlace() + " / LAT, LNG : " + path.getLat() + ", " + path.getLng());
 //                            Log.d(TAG, snap.getId() + " => " + snap.getData());
                         }
                     }
                 });
-
     }
 
+    private void removePatient() {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat ("M/d");
+
+        long now = System.currentTimeMillis();
+        Date compareDate = new Date(now);
+        Calendar compareCalender = Calendar.getInstance();
+        compareCalender.setTime(compareDate);
+
+        compareCalender.add(Calendar.DATE, -3);
+
+        compareCalender = initCalendar(compareCalender);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Log.d(TAG, dateFormat.format(compareCalender.getTime()));
+
+        db.collection("patients")
+                .whereLessThan("diagDate", dateFormat.format(compareCalender.getTime()))
+//                .whereEqualTo("diagDate", dateFormat.format(compareCalender.getTime()))
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                //You can only delete a document once you have a DocumentReference to it.
+                                Log.d(TAG, document.getId() + " " + document.get("diagDate"));
+                                deleteAtPath(document.getId());
+//                                DocumentSnapshot documentSnapshot = document;
+//                                document.getReference().delete();
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+        //일단 각각 patients의 문서 하나 가져온담에 거기서 diagdate 가져오고 캘린더 객체 만들어서 비교 할까..???
+    }
+
+
+
+    /**
+     * Call the 'recursiveDelete' callable function with a path to initiate
+     * a server-side delete.
+     */
+    public void deleteAtPath(String path) {
+        path = "/patients/" + path;
+        //path is "/patients/22411"
+        Map<String, Object> data = new HashMap<>();
+        data.put("path", path);
+
+        Log.d(TAG, path);
+        HttpsCallableReference deleteFn =
+                FirebaseFunctions.getInstance().getHttpsCallable("recursiveDelete");
+        deleteFn.call(data)
+                .addOnSuccessListener(new OnSuccessListener<HttpsCallableResult>() {
+                    @Override
+                    public void onSuccess(HttpsCallableResult httpsCallableResult) {
+                        // Delete Success
+                        Log.d(TAG, "deleted");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                        // Delete failed
+                        // ...
+                    }
+                });
+    }
 }
 
 
